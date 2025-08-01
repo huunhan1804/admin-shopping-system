@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useParams,
 } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
@@ -33,6 +34,12 @@ const AppContent = () => {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  const ApplicationReviewWrapper = () => {
+    const { id } = useParams();
+    return <ApplicationReview applicationId={id} />;
+  };
+
 
   return (
     <Router>
@@ -104,7 +111,7 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <Layout>
-                <ApplicationReview />
+                <ApplicationReviewWrapper />
               </Layout>
             </ProtectedRoute>
           }

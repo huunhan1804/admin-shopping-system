@@ -27,6 +27,7 @@ import ApplicationReview from "./pages/ApplicationReview";
 import InsuranceManagement from "./pages/InsuranceManagement";
 import InsuranceReview from "./pages/InsuranceReview";
 import ReportsPage from "./pages/ReportsPage";
+import ProductReviewPage from "./pages/ProductReviewPage";
 
 const AppContent = () => {
   const { checkAuth } = useAuth();
@@ -72,6 +73,16 @@ const AppContent = () => {
             <ProtectedRoute>
               <Layout>
                 <PendingProductsPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/products/review/:productId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProductReviewPage />
               </Layout>
             </ProtectedRoute>
           }

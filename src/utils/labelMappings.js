@@ -5,7 +5,10 @@ export const approvalStatusLabels = {
   "REJECTED": "Bị từ chối",
   "Chờ duyệt": "Chờ duyệt",
   "Đã phê duyệt": "Đã phê duyệt",
-  "Bị từ chối": "Bị từ chối"
+  "Bị từ chối": "Bị từ chối",
+  "pending": "Chờ duyệt",
+  "approved": "Đã phê duyệt", 
+  "rejected": "Bị từ chối",
 };
 
 // Mapping cho trạng thái tài khoản
@@ -83,6 +86,30 @@ export const compensationTypeLabels = {
   "STORE_CREDIT": "Tín dụng cửa hàng"
 };
 
+// Mapping cho trạng thái sản phẩm
+export const productStatusLabels = {
+  "PENDING": "Chờ duyệt",
+  "APPROVED": "Đã duyệt", 
+  "REJECTED": "Từ chối",
+  "SUSPENDED": "Tạm ngưng",
+  "UNDER_REVIEW": "Đang xem xét",
+  "ACTIVE": "Hoạt động",
+  "INACTIVE": "Không hoạt động"
+};
+
+export const roleLabels = {
+  "admin": "Quản trị viên",
+  "agency": "Đại lý",
+  "customer": "Khách hàng",
+  "staff": "Nhân viên"
+};
+
+export const genderLabels = {
+  "MALE": "Nam",
+  "FEMALE": "Nữ", 
+  "OTHER": "Khác"
+};
+
 // Mapping cho loại liên lạc
 export const communicationTypeLabels = {
   "ADMIN_TO_CUSTOMER": "Admin → Khách hàng",
@@ -105,4 +132,44 @@ export const mapOptionsWithLabels = (options, labelMapping) => {
 // Hàm helper để lấy label từ value
 export const getLabel = (value, labelMapping) => {
   return labelMapping[value] || value;
+};
+
+export const getStatusBadge = (status, type) => {
+  const badgeConfigs = {
+    approval: {
+      "PENDING": { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "clock" },
+      "APPROVED": { color: "bg-green-100 text-green-800 border-green-200", icon: "check-circle" },
+      "REJECTED": { color: "bg-red-100 text-red-800 border-red-200", icon: "x-circle" },
+      "pending": { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "clock" },
+      "approved": { color: "bg-green-100 text-green-800 border-green-200", icon: "check-circle" },
+      "rejected": { color: "bg-red-100 text-red-800 border-red-200", icon: "x-circle" }
+    },
+    account: {
+      "ACTIVE": { color: "bg-green-100 text-green-800 border-green-200", icon: "check" },
+      "SUSPENDED": { color: "bg-red-100 text-red-800 border-red-200", icon: "ban" },
+      "INACTIVE": { color: "bg-gray-100 text-gray-800 border-gray-200", icon: "pause" },
+      "PENDING": { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "clock" },
+      "active": { color: "bg-green-100 text-green-800 border-green-200", icon: "check" },
+      "suspended": { color: "bg-red-100 text-red-800 border-red-200", icon: "ban" },
+      "inactive": { color: "bg-gray-100 text-gray-800 border-gray-200", icon: "pause" },
+      "pending": { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "clock" }
+    },
+    insurance: {
+      "SUBMITTED": { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "clock" },
+      "UNDER_REVIEW": { color: "bg-blue-100 text-blue-800 border-blue-200", icon: "search" },
+      "APPROVED": { color: "bg-green-100 text-green-800 border-green-200", icon: "check-circle" },
+      "REJECTED": { color: "bg-red-100 text-red-800 border-red-200", icon: "x-circle" },
+      "CLOSED": { color: "bg-gray-100 text-gray-800 border-gray-200", icon: "archive" },
+      "submitted": { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "clock" },
+      "under_review": { color: "bg-blue-100 text-blue-800 border-blue-200", icon: "search" },
+      "approved": { color: "bg-green-100 text-green-800 border-green-200", icon: "check-circle" },
+      "rejected": { color: "bg-red-100 text-red-800 border-red-200", icon: "x-circle" },
+      "closed": { color: "bg-gray-100 text-gray-800 border-gray-200", icon: "archive" }
+    }
+  };
+console.log('getStatusBadge called with:', status, type);
+  const config = badgeConfigs[type]?.[status] || 
+    { color: "bg-gray-100 text-gray-800 border-gray-200", icon: "help-circle" };
+  
+  return config;
 };

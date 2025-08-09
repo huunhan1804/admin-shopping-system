@@ -16,11 +16,11 @@ import {
 } from "lucide-react";
 import { useConfirmation } from "../hooks/useConfirmation";
 import ConfirmationModal from "../components/common/ConfirmationModal";
-import apiService from "../services/api";
 import ModernSelect from "../components/common/ModernSelect";
 import SearchInput from "../components/common/SearchInput";
 import { accountStatusLabels, approvalStatusLabels, mapOptionsWithLabels } from "../utils/labelMappings";
 import userService from "../services/userService";
+import StatusBadge from '../components/common/StatusBadge';
 
 const AgencyManagement = () => {
   const [agencies, setAgencies] = useState([]);
@@ -229,36 +229,21 @@ const AgencyManagement = () => {
     </div>
   );
 
-    const getApprovalStatusBadge = (status) => {
-    const statusLabel = approvalStatusLabels[status] || status;
-    switch (status) {
-      case "Chờ duyệt":
-      case "PENDING":
-        return { color: "bg-yellow-500", icon: "fas fa-clock", label: statusLabel };
-      case "Đã phê duyệt":
-      case "APPROVED":
-        return { color: "bg-green-500", icon: "fas fa-check-circle", label: statusLabel };
-      case "Bị từ chối":
-      case "REJECTED":
-        return { color: "bg-red-500", icon: "fas fa-times-circle", label: statusLabel };
-      default:
-        return { color: "bg-gray-500", icon: "fas fa-question", label: statusLabel };
-    }
-  };
+  const renderApprovalStatus = (status) => (
+    <StatusBadge 
+      status={status} 
+      type="approval" 
+      labelMapping={approvalStatusLabels} 
+    />
+  );
 
-  const getAccountStatusBadge = (status) => {
-    const statusLabel = accountStatusLabels[status] || status;
-    switch (status) {
-      case "ACTIVE":
-        return { color: "bg-green-500", icon: "fas fa-check", label: statusLabel };
-      case "SUSPENDED":
-        return { color: "bg-red-500", icon: "fas fa-ban", label: statusLabel };
-      case "INACTIVE":
-        return { color: "bg-gray-500", icon: "fas fa-pause", label: statusLabel };
-      default:
-        return { color: "bg-yellow-500", icon: "fas fa-question", label: statusLabel };
-    }
-  };
+  const renderAccountStatus = (status) => (
+    <StatusBadge 
+      status={status} 
+      type="account" 
+      labelMapping={accountStatusLabels} 
+    />
+  );
 
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
@@ -370,13 +355,6 @@ const AgencyManagement = () => {
                 </tr>
               ) : (
                 agencies.map((agency) => {
-                  const approvalBadge = getApprovalStatusBadge(
-                    agency.approvalStatus
-                  );
-                  const accountBadge = getAccountStatusBadge(
-                    agency.accountStatus
-                  );
-
                   return (
                     <tr key={agency.accountId} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -430,22 +408,12 @@ const AgencyManagement = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="mb-1">
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded text-white ${approvalBadge.color}`}
-                          >
-                            <i className={`${approvalBadge.icon} mr-1`}></i>
-                            {agency.approvalStatus}
-                          </span>
+                            {renderApprovalStatus(agency.approvalStatus)}
                         </div>
                         <div>
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded text-white ${accountBadge.color}`}
-                          >
-                            <i className={`${accountBadge.icon} mr-1`}></i>
-                            {agency.accountStatus}
-                          </span>
+                            {renderAccountStatus(agency.accountStatus)}
                         </div>
-                        {agency.isBanned && (
+                        {agency.banned && (
                           <div className="text-xs text-red-600 mt-1">
                             <i className="fas fa-exclamation-triangle mr-1"></i>
                             Đã bị khóa
@@ -491,7 +459,7 @@ const AgencyManagement = () => {
                             </button>
                           )}
 
-                          {!agency.isBanned ? (
+                          {!agency.banned ? (
                             <button
                               onClick={() => {
                                 setSelectedAgency(agency);
@@ -766,7 +734,7 @@ const AgencyManagement = () => {
                       <span className="ml-2 px-2 py-1 text-xs rounded bg-blue-500 text-white">
                         {selectedAgency.accountStatus}
                       </span>
-                      {selectedAgency.isBanned && (
+                      {selectedAgency.banned && (
                         <span className="ml-1 px-2 py-1 text-xs rounded bg-red-600 text-white">
                           Đã bị khóa
                         </span>

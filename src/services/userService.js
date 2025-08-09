@@ -12,7 +12,7 @@ class UserService {
   }
 
   async suspendCustomer(id, data) {
-    return await apiService.post(`/admin/users/customers/${id}/suspend`, data);
+    return await apiService.post(`/admin/users/customers/${id}/suspend?reason=${encodeURIComponent(data.reason)}`);
   }
 
   async activateCustomer(id) {
@@ -37,7 +37,7 @@ class UserService {
   }
 
   async suspendAgency(id, data) {
-    return await apiService.post(`/admin/users/agencies/${id}/suspend`, data);
+    return await apiService.post(`/admin/users/agencies/${id}/suspend?reason=${encodeURIComponent(data.reason)}`);
   }
 
   async activateAgency(id) {

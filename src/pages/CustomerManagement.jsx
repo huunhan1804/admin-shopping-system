@@ -8,12 +8,18 @@ import {
   RefreshCw,
 } from "lucide-react";
 import PaginatedTable from "../components/common/PaginatedTable";
+import StatusBadge from "../components/common/StatusBadge";
 import { useConfirmation } from "../hooks/useConfirmation";
 import ConfirmationModal from "../components/common/ConfirmationModal";
-import apiService from "../services/api";
 import ModernSelect from "../components/common/ModernSelect";
 import SearchInput from "../components/common/SearchInput";
 import userService from "../services/userService";
+import { 
+  accountStatusLabels, 
+  membershipLevelLabels,
+  getLabel,
+  mapOptionsWithLabels 
+} from "../utils/labelMappings";
 
 const CustomerManagement = () => {
   const [customers, setCustomers] = useState({
@@ -87,7 +93,14 @@ const CustomerManagement = () => {
   const loadFilterOptions = async () => {
     try {
       const data = await userService.getCustomerFilters();
-      setFilterOptions(data);
+      
+      // Transform options với labels
+      const transformedOptions = {
+        accountStatuses: mapOptionsWithLabels(data.accountStatuses || [], accountStatusLabels),
+        membershipLevels: mapOptionsWithLabels(data.membershipLevels || [], membershipLevelLabels),
+      };
+      
+      setFilterOptions(transformedOptions);
     } catch (error) {
       console.error("Lỗi khi tải filter options:", error);
     }
@@ -105,19 +118,6 @@ const CustomerManagement = () => {
     loadCustomers(0, newPageSize);
   };
 
-  const getaccountStatusBadgeColor = (accountStatus) => {
-    switch (accountStatus) {
-      case "ACTIVE":
-        return "bg-green-500";
-      case "SUSPENDED":
-        return "bg-red-500";
-      case "INACTIVE":
-        return "bg-gray-500";
-      default:
-        return "bg-yellow-500";
-    }
-  };
-
   // Định nghĩa columns cho PaginatedTable
   const columns = [
     {
@@ -132,16 +132,14 @@ const CustomerManagement = () => {
       ),
     },
     {
-      header: "Trạng thái",
+      header: "Trạng thái tài khoản",
       key: "accountStatus",
       render: (row) => (
-        <span
-          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white ${getaccountStatusBadgeColor(
-            row.accountStatus
-          )}`}
-        >
-          {row.accountStatus}
-        </span>
+        <StatusBadge 
+          status={row.accountStatus} 
+          type="account" 
+          labelMapping={accountStatusLabels} 
+        />
       ),
     },
     {
@@ -163,13 +161,25 @@ const CustomerManagement = () => {
       ),
     },
     {
+      header: "Tổng chi tiêu",
+      key: "totalOrderValue",
+      render: (row) => (
+        <span className="text-sm text-gray-900 font-medium">
+          {new Intl.NumberFormat('vi-VN', { 
+            style: 'currency', 
+            currency: 'VND' 
+          }).format(row.totalOrderValue || 0)}
+        </span>
+      ),
+    },
+    {
       header: "Thao tác",
       key: "actions",
       render: (row) => (
         <div className="flex space-x-2">
           <button
             onClick={() => handleViewDetail(row)}
-            className="text-blue-600 hover:text-blue-800"
+            className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
             title="Xem chi tiết"
           >
             <Eye className="w-4 h-4" />
@@ -177,7 +187,7 @@ const CustomerManagement = () => {
           {row.accountStatus === "ACTIVE" ? (
             <button
               onClick={() => handleSuspendCustomer(row)}
-              className="text-red-600 hover:text-red-800"
+              className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50"
               title="Tạm khóa"
             >
               <Ban className="w-4 h-4" />
@@ -185,7 +195,7 @@ const CustomerManagement = () => {
           ) : (
             <button
               onClick={() => handleActivateCustomer(row.accountId)}
-              className="text-green-600 hover:text-green-800"
+              className="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50"
               title="Kích hoạt"
             >
               <Check className="w-4 h-4" />
@@ -193,7 +203,7 @@ const CustomerManagement = () => {
           )}
           <button
             onClick={() => handleResetPassword(row.accountId)}
-            className="text-yellow-600 hover:text-yellow-800"
+            className="text-yellow-600 hover:text-yellow-800 p-1 rounded hover:bg-yellow-50"
             title="Reset mật khẩu"
           >
             <Key className="w-4 h-4" />
@@ -215,6 +225,7 @@ const CustomerManagement = () => {
 
   const handleActivateCustomer = (customerId) => {
     showConfirmation({
+      title: "Kích hoạt tài khoản",
       message: `Bạn có chắc muốn kích hoạt lại tài khoản khách hàng này?`,
       type: "info",
       confirmText: "Kích hoạt",
@@ -238,7 +249,8 @@ const CustomerManagement = () => {
 
   const handleResetPassword = (customerId) => {
     showConfirmation({
-      message: `Bạn có chắc muốn reset mật khẩu cho khách hàng này?`,
+      title: "Reset mật khẩu",
+      message: `Bạn có chắc muốn reset mật khẩu cho khách hàng này? Mật khẩu mới sẽ được gửi qua email.`,
       type: "warning",
       confirmText: "Reset mật khẩu",
       onConfirm: async () => {
@@ -246,7 +258,7 @@ const CustomerManagement = () => {
           const data = await userService.resetCustomerPassword(customerId);
 
           if (data.success) {
-            alert("Reset mật khẩu thành công");
+            alert("Reset mật khẩu thành công. Mật khẩu mới đã được gửi qua email.");
           } else {
             alert("Lỗi: " + data.message);
           }
@@ -265,10 +277,10 @@ const CustomerManagement = () => {
     }
 
     try {
-      const data = await userService.suspendCustomer(
+       const data = await userService.suspendCustomer(
         selectedCustomer.accountId,
         { reason: suspendReason }
-      );
+       );
 
       if (data.success) {
         alert("Tạm khóa tài khoản thành công");
@@ -301,7 +313,7 @@ const CustomerManagement = () => {
             onClick={() =>
               loadCustomers(customers.currentPage, customers.pageSize)
             }
-            className="flex items-center px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            className="flex items-center px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Làm mới
@@ -311,21 +323,24 @@ const CustomerManagement = () => {
 
       {/* Filters */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
             <SearchInput
               value={filters.keyword}
               onChange={(value) => handleFilterChange("keyword", value)}
-              placeholder="Tên, email, username..."
+              placeholder="Tìm theo tên, email, username..."
             />
           </div>
 
           <ModernSelect
-            label="Trạng thái"
+            label="Trạng thái tài khoản"
             value={filters.accountStatus}
             onChange={(value) => handleFilterChange("accountStatus", value)}
-            options={filterOptions.accountStatuses || []}
-            placeholder="Tất cả trạng thái"
+            options={[
+              { value: "", label: "Tất cả trạng thái" },
+              ...filterOptions.accountStatuses
+            ]}
+            placeholder="Chọn trạng thái"
           />
         </div>
       </div>
@@ -348,7 +363,7 @@ const CustomerManagement = () => {
       {/* Detail Modal */}
       {showDetailModal && selectedCustomer && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Chi tiết khách hàng
@@ -359,26 +374,26 @@ const CustomerManagement = () => {
                   <h4 className="font-medium text-blue-600 mb-3">
                     Thông tin cá nhân
                   </h4>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="font-medium">Họ tên:</span>{" "}
-                      {selectedCustomer.fullname}
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-600">Họ tên:</span>
+                      <span className="text-gray-900">{selectedCustomer.fullname}</span>
                     </div>
-                    <div>
-                      <span className="font-medium">Email:</span>{" "}
-                      {selectedCustomer.email}
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-600">Email:</span>
+                      <span className="text-gray-900">{selectedCustomer.email}</span>
                     </div>
-                    <div>
-                      <span className="font-medium">Username:</span>{" "}
-                      {selectedCustomer.username}
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-600">Username:</span>
+                      <span className="text-gray-900">{selectedCustomer.username}</span>
                     </div>
-                    <div>
-                      <span className="font-medium">Số điện thoại:</span>{" "}
-                      {selectedCustomer.phone || "Chưa cập nhật"}
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-600">Số điện thoại:</span>
+                      <span className="text-gray-900">{selectedCustomer.phone || "Chưa cập nhật"}</span>
                     </div>
-                    <div>
-                      <span className="font-medium">Địa chỉ:</span>{" "}
-                      {selectedCustomer.address || "Chưa cập nhật"}
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-600">Địa chỉ:</span>
+                      <span className="text-gray-900">{selectedCustomer.address || "Chưa cập nhật"}</span>
                     </div>
                   </div>
                 </div>
@@ -387,39 +402,43 @@ const CustomerManagement = () => {
                   <h4 className="font-medium text-blue-600 mb-3">
                     Thông tin tài khoản
                   </h4>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="font-medium">Ngày đăng ký:</span>{" "}
-                      {new Date(selectedCustomer.createdDate).toLocaleString(
-                        "vi-VN"
-                      )}
-                    </div>
-                    <div>
-                      <span className="font-medium">Trạng thái:</span>
-                      <span
-                        className={`ml-2 px-2 py-1 text-xs rounded-full text-white ${getaccountStatusBadgeColor(
-                          selectedCustomer.accountStatus
-                        )}`}
-                      >
-                        {selectedCustomer.accountStatus}
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-600">Ngày đăng ký:</span>
+                      <span className="text-gray-900">
+                        {new Date(selectedCustomer.createdDate).toLocaleString("vi-VN")}
                       </span>
                     </div>
-                    <div>
-                      <span className="font-medium">Tổng đơn hàng:</span>{" "}
-                      {selectedCustomer.totalOrders || 0}
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-gray-600">Trạng thái:</span>
+                      <StatusBadge 
+                        status={selectedCustomer.accountStatus} 
+                        type="account" 
+                        labelMapping={accountStatusLabels} 
+                      />
                     </div>
-                    <div>
-                      <span className="font-medium">Tổng chi tiêu:</span>{" "}
-                      {selectedCustomer.totalSpent || 0} VNĐ
+                    
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-600">Tổng đơn hàng:</span>
+                      <span className="text-gray-900 font-medium">{selectedCustomer.totalOrders || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-600">Tổng chi tiêu:</span>
+                      <span className="text-gray-900 font-medium">
+                        {new Intl.NumberFormat('vi-VN', { 
+                          style: 'currency', 
+                          currency: 'VND' 
+                        }).format(selectedCustomer.totalOrderValue || 0)}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end">
+              <div className="mt-6 flex justify-end space-x-2">
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
                 >
                   Đóng
                 </button>
@@ -440,9 +459,19 @@ const CustomerManagement = () => {
               <p className="text-sm text-gray-600 mb-4">
                 Tài khoản: <strong>{selectedCustomer?.fullname}</strong>
               </p>
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+                <div className="flex">
+                  <Ban className="text-yellow-500 mr-2 mt-0.5" size={16} />
+                  <div className="text-sm">
+                    <strong>Lưu ý:</strong> Khách hàng sẽ không thể đăng nhập và sử dụng dịch vụ khi bị tạm khóa.
+                  </div>
+                </div>
+              </div>
+
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Lý do tạm khóa *
+                  Lý do tạm khóa <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={suspendReason}
@@ -453,19 +482,22 @@ const CustomerManagement = () => {
                   required
                 />
               </div>
+
               <div className="flex justify-end space-x-2">
                 <button
                   onClick={() => {
                     setShowSuspendModal(false);
                     setSuspendReason("");
+                    setSelectedCustomer(null);
                   }}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={submitSuspend}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  disabled={!suspendReason.trim()}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Tạm khóa
                 </button>

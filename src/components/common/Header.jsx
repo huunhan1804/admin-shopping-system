@@ -2,17 +2,13 @@ import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { 
   LogOut, 
-  User, 
-  Bell, 
-  Search,
+  User,
   Menu,
-  Settings
 } from 'lucide-react';
 
 const Header = () => {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
 
   const handleLogout = async () => {
     await logout();

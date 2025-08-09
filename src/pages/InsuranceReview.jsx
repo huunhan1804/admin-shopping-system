@@ -9,11 +9,7 @@ import {
   FileText, 
   Image, 
   MessageCircle,
-  Save,
   Mail,
-  Eye,
-  Print,
-  Download,
   History,
   Settings
 } from 'lucide-react';

@@ -13,6 +13,9 @@ import {
   Undo,
   Redo
 } from 'lucide-react';
+import { Image, Camera } from 'lucide-react';
+
+
 
 const BIDI_CONTROL_REGEX = /[\u202A-\u202E\u2066-\u2069\u200E\u200F]/g;
 
@@ -20,7 +23,21 @@ const RichTextEditor = ({ value, onChange, placeholder, error }) => {
   const editorRef = useRef(null);
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
-  const lastExternalHtml = useRef(''); // track html đã sync từ props
+  const lastExternalHtml = useRef('');
+  const fileInputRef = useRef(null);
+const cameraInputRef = useRef(null);
+
+const handleFileSelected = (file) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    exec('insertHTML', `<img src="${reader.result}" alt="" style="max-width:100%;height:auto;" />`);
+  };
+  reader.readAsDataURL(file);
+};
+
+const pickFromDevice = () => fileInputRef.current?.click();
+const captureFromCamera = () => cameraInputRef.current?.click(); // track html đã sync từ props
 
   // ép LTR & canh trái ngay từ đầu
   useEffect(() => {
@@ -129,6 +146,8 @@ const RichTextEditor = ({ value, onChange, placeholder, error }) => {
           </button>
         </div>
 
+        
+
         <div className="flex items-center space-x-1">
           <button type="button" onClick={() => setShowLinkDialog(true)} className="p-2 hover:bg-gray-200 rounded" title="Chèn liên kết">
             <Link className="w-4 h-4" />
@@ -138,8 +157,34 @@ const RichTextEditor = ({ value, onChange, placeholder, error }) => {
             <Code className="w-4 h-4" />
           </button>
         </div>
-      </div>
 
+         {/* Chèn ảnh */}
+<div className="flex items-center space-x-1 border-r pr-2 mr-2">
+  <button type="button" onClick={pickFromDevice} className="p-2 hover:bg-gray-200 rounded" title="Tải từ thiết bị">
+    <Image className="w-4 h-4" />
+  </button>
+  <button type="button" onClick={captureFromCamera} className="p-2 hover:bg-gray-200 rounded" title="Chụp ảnh">
+    <Camera className="w-4 h-4" />
+  </button>
+  {/* hidden inputs */}
+  <input
+    type="file"
+    accept="image/*"
+    ref={fileInputRef}
+    style={{ display: 'none' }}
+    onChange={(e) => handleFileSelected(e.target.files?.[0])}
+  />
+  <input
+    type="file"
+    accept="image/*"
+    capture="environment"
+    ref={cameraInputRef}
+    style={{ display: 'none' }}
+    onChange={(e) => handleFileSelected(e.target.files?.[0])}
+  />
+</div>
+      </div>
+       
       {/* Editor */}
       <div
         ref={editorRef}

@@ -116,9 +116,7 @@ const ArticleList = ({
 
             {/* Content Preview */}
             <div className="mb-4">
-              <p className="text-gray-600 line-clamp-3">
-                {article.articleContent}
-              </p>
+              <div className="text-gray-600 line-clamp-3" dangerouslySetInnerHTML={{ __html: article.articleContent || '' }}/>
             </div>
 
             {/* Meta Info */}

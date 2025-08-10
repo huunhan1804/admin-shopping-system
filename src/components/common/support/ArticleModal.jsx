@@ -3,28 +3,20 @@ import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import RichTextEditor from "../RichTextEditor";
 
-const ArticleModal = ({
-  isOpen,
-  mode,
-  article,
-  categoryId,
-  onClose,
-  onSave,
-  saving,
-}) => {
+const ArticleModal = ({ isOpen, mode, article, categoryId, onClose, onSave, saving }) => {
   const [formData, setFormData] = useState({
-    articleTitle: "",
-    articleContent: "",
-    isVisible: true,
+    articleTitle: '',
+    articleContent: '',
+    isVisible: true
   });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (article && mode === "edit") {
+    if (article && mode === 'edit') {
       setFormData({
-        articleTitle: article.articleTitle || "",
-        articleContent: article.articleContent || "",
-        isVisible: article.isVisible !== undefined ? article.isVisible : true,
+        articleTitle: article.articleTitle || '',
+        articleContent: article.articleContent || '',
+        isVisible: article.isVisible !== undefined ? article.isVisible : true
       });
     }
   }, [article, mode]);
@@ -45,19 +37,16 @@ const ArticleModal = ({
     }
   };
 
-  const handleContentChange = (content) => {
-    setFormData((prev) => ({
-      ...prev,
-      articleContent: content,
-    }));
-
+  const handleContentChange = React.useCallback((nextHtml) => {
+    setFormData(prev => {
+      if (prev.articleContent === nextHtml) return prev; // tránh set lại -> tránh chồng dữ liệu
+      return { ...prev, articleContent: nextHtml || '' };
+    });
     if (errors.articleContent) {
-      setErrors((prev) => ({
-        ...prev,
-        articleContent: "",
-      }));
+      setErrors(prev => ({ ...prev, articleContent: '' }));
     }
-  };
+  }, [errors.articleContent]);
+
 
   const validate = () => {
     const newErrors = {};

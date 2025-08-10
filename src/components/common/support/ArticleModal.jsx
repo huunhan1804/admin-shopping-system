@@ -1,81 +1,82 @@
 // components/support/ArticleModal.jsx
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import RichTextEditor from '../RichTextEditor';
+import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import RichTextEditor from "../RichTextEditor";
 
-const ArticleModal = ({ 
-  isOpen, 
-  mode, 
-  article, 
+const ArticleModal = ({
+  isOpen,
+  mode,
+  article,
   categoryId,
-  onClose, 
-  onSave 
+  onClose,
+  onSave,
+  saving,
 }) => {
   const [formData, setFormData] = useState({
-    articleTitle: '',
-    articleContent: '',
-    isVisible: true
+    articleTitle: "",
+    articleContent: "",
+    isVisible: true,
   });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (article && mode === 'edit') {
+    if (article && mode === "edit") {
       setFormData({
-        articleTitle: article.articleTitle || '',
-        articleContent: article.articleContent || '',
-        isVisible: article.isVisible !== undefined ? article.isVisible : true
+        articleTitle: article.articleTitle || "",
+        articleContent: article.articleContent || "",
+        isVisible: article.isVisible !== undefined ? article.isVisible : true,
       });
     }
   }, [article, mode]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    
+
     // Clear error when user types
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const handleContentChange = (content) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      articleContent: content
+      articleContent: content,
     }));
-    
+
     if (errors.articleContent) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        articleContent: ''
+        articleContent: "",
       }));
     }
   };
 
   const validate = () => {
     const newErrors = {};
-    
+
     if (!formData.articleTitle.trim()) {
-      newErrors.articleTitle = 'Tiêu đề bài viết là bắt buộc';
+      newErrors.articleTitle = "Tiêu đề bài viết là bắt buộc";
     }
-    
+
     if (!formData.articleContent.trim()) {
-      newErrors.articleContent = 'Nội dung bài viết là bắt buộc';
+      newErrors.articleContent = "Nội dung bài viết là bắt buộc";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (validate()) {
       onSave(formData);
     }
@@ -89,7 +90,7 @@ const ArticleModal = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold">
-            {mode === 'create' ? 'Thêm bài viết mới' : 'Chỉnh sửa bài viết'}
+            {mode === "create" ? "Thêm bài viết mới" : "Chỉnh sửa bài viết"}
           </h2>
           <button
             onClick={onClose}
@@ -113,12 +114,14 @@ const ArticleModal = ({
                 value={formData.articleTitle}
                 onChange={handleChange}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.articleTitle ? 'border-red-500' : 'border-gray-300'
+                  errors.articleTitle ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="VD: Hướng dẫn mua hàng cơ bản"
               />
               {errors.articleTitle && (
-                <p className="mt-1 text-sm text-red-500">{errors.articleTitle}</p>
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.articleTitle}
+                </p>
               )}
             </div>
 
@@ -134,7 +137,9 @@ const ArticleModal = ({
                 error={errors.articleContent}
               />
               {errors.articleContent && (
-                <p className="mt-1 text-sm text-red-500">{errors.articleContent}</p>
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.articleContent}
+                </p>
               )}
             </div>
 
@@ -157,7 +162,8 @@ const ArticleModal = ({
           {/* Footer */}
           <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50">
             <div className="text-sm text-gray-500">
-              {mode === 'create' && 'Sau khi lưu, bạn có thể tiếp tục thêm bài viết khác'}
+              {mode === "create" &&
+                "Sau khi lưu, bạn có thể tiếp tục thêm bài viết khác"}
             </div>
             <div className="flex space-x-3">
               <button
@@ -170,8 +176,34 @@ const ArticleModal = ({
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={saving}
               >
-                {mode === 'create' ? 'Thêm bài viết' : 'Cập nhật'}
+                {saving ? (
+                  <>
+                    <svg
+                      className="w-4 h-4 mr-2 animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                    Đang lưu...
+                  </>
+                ) : (
+                  <>{mode === "create" ? "Thêm bài viết" : "Cập nhật"}</>
+                )}
               </button>
             </div>
           </div>

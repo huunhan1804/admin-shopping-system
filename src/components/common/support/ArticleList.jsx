@@ -1,23 +1,26 @@
 // components/support/ArticleList.jsx
-import React from 'react';
-import { 
-  FileText, 
-  Edit2, 
-  Trash2, 
-  Eye, 
+import React from "react";
+import {
+  FileText,
+  Edit2,
+  Trash2,
+  Eye,
   EyeOff,
   Clock,
   User,
-  BarChart
-} from 'lucide-react';
-import LoadingSpinner from '../LoadingSpinner';
+  BarChart,
+  Loader2,
+} from "lucide-react";
+import LoadingSpinner from "../LoadingSpinner";
 
-const ArticleList = ({ 
-  articles, 
+const ArticleList = ({
+  articles,
   loading,
-  onEditArticle, 
+  onEditArticle,
   onDeleteArticle,
-  onToggleVisibility
+  onToggleVisibility,
+  deletingArticleId, // <-- nhận prop mới
+  togglingArticleId, // <-- nhận prop mới
 }) => {
   if (loading) {
     return <LoadingSpinner />;
@@ -40,7 +43,7 @@ const ArticleList = ({
   return (
     <div className="space-y-4">
       {articles.map((article, index) => (
-        <div 
+        <div
           key={article.articleId}
           className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
         >
@@ -49,7 +52,9 @@ const ArticleList = ({
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center">
-                  <span className="text-sm text-gray-500 mr-3">#{index + 1}</span>
+                  <span className="text-sm text-gray-500 mr-3">
+                    #{index + 1}
+                  </span>
                   <h3 className="text-lg font-semibold text-gray-900">
                     {article.articleTitle}
                   </h3>
@@ -60,24 +65,37 @@ const ArticleList = ({
                   )}
                 </div>
               </div>
-              
+
               {/* Actions */}
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => onToggleVisibility(article.articleId)}
                   className={`p-2 rounded-lg transition-colors ${
-                    article.isVisible 
-                      ? 'text-gray-600 hover:text-gray-800 hover:bg-gray-100' 
-                      : 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'
+                    article.isVisible
+                      ? "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                      : "text-blue-600 hover:text-blue-800 hover:bg-blue-50"
                   }`}
-                  title={article.isVisible ? 'Ẩn bài viết' : 'Hiển thị bài viết'}
+                  title={
+                    article.isVisible ? "Ẩn bài viết" : "Hiển thị bài viết"
+                  }
+                  disabled={togglingArticleId === article.articleId}
                 >
-                  {article.isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {togglingArticleId === article.articleId ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : article.isVisible ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
                 <button
                   onClick={() => onEditArticle(article)}
                   className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
                   title="Sửa bài viết"
+                  disabled={
+                    deletingArticleId === article.articleId ||
+                    togglingArticleId === article.articleId
+                  }
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -85,8 +103,13 @@ const ArticleList = ({
                   onClick={() => onDeleteArticle(article.articleId)}
                   className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
                   title="Xóa bài viết"
+                  disabled={deletingArticleId === article.articleId}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {deletingArticleId === article.articleId ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -104,7 +127,7 @@ const ArticleList = ({
                 {article.createdAt && (
                   <div className="flex items-center">
                     <Clock className="w-4 h-4 mr-1" />
-                    {new Date(article.createdAt).toLocaleDateString('vi-VN')}
+                    {new Date(article.createdAt).toLocaleDateString("vi-VN")}
                   </div>
                 )}
                 {article.createdBy && (

@@ -1,58 +1,52 @@
 // components/support/CategoryModal.jsx
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
 
-const CategoryModal = ({ 
-  isOpen, 
-  mode, 
-  category, 
-  onClose, 
-  onSave 
-}) => {
+const CategoryModal = ({ isOpen, mode, category, onClose, onSave, saving }) => {
   const [formData, setFormData] = useState({
-    supportCategoryName: '',
-    supportCategoryDescription: ''
+    supportCategoryName: "",
+    supportCategoryDescription: "",
   });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (category && mode === 'edit') {
+    if (category && mode === "edit") {
       setFormData({
-        supportCategoryName: category.supportCategoryName || '',
-        supportCategoryDescription: category.supportCategoryDescription || ''
+        supportCategoryName: category.supportCategoryName || "",
+        supportCategoryDescription: category.supportCategoryDescription || "",
       });
     }
   }, [category, mode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user types
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const validate = () => {
     const newErrors = {};
-    
+
     if (!formData.supportCategoryName.trim()) {
-      newErrors.supportCategoryName = 'Tên danh mục là bắt buộc';
+      newErrors.supportCategoryName = "Tên danh mục là bắt buộc";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (validate()) {
       onSave(formData);
     }
@@ -66,7 +60,7 @@ const CategoryModal = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold">
-            {mode === 'create' ? 'Thêm danh mục mới' : 'Chỉnh sửa danh mục'}
+            {mode === "create" ? "Thêm danh mục mới" : "Chỉnh sửa danh mục"}
           </h2>
           <button
             onClick={onClose}
@@ -90,12 +84,16 @@ const CategoryModal = ({
                 value={formData.supportCategoryName}
                 onChange={handleChange}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.supportCategoryName ? 'border-red-500' : 'border-gray-300'
+                  errors.supportCategoryName
+                    ? "border-red-500"
+                    : "border-gray-300"
                 }`}
                 placeholder="VD: Hướng dẫn mua hàng"
               />
               {errors.supportCategoryName && (
-                <p className="mt-1 text-sm text-red-500">{errors.supportCategoryName}</p>
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.supportCategoryName}
+                </p>
               )}
             </div>
 
@@ -115,7 +113,7 @@ const CategoryModal = ({
             </div>
           </div>
 
-{/* Footer */}
+          {/* Footer */}
           <div className="flex justify-end space-x-3 px-6 py-4 border-t bg-gray-50">
             <button
               type="button"
@@ -127,8 +125,34 @@ const CategoryModal = ({
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              disabled={saving}
             >
-              {mode === 'create' ? 'Lưu danh mục' : 'Cập nhật'}
+              {saving ? (
+                <>
+                  <svg
+                    className="w-4 h-4 mr-2 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                  Đang lưu...
+                </>
+              ) : (
+                <>{mode === "create" ? "Lưu danh mục" : "Cập nhật"}</>
+              )}
             </button>
           </div>
         </form>

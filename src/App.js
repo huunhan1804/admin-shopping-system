@@ -28,6 +28,7 @@ import InsuranceManagement from "./pages/InsuranceManagement";
 import InsuranceReview from "./pages/InsuranceReview";
 import ReportsPage from "./pages/ReportsPage";
 import ProductReviewPage from "./pages/ProductReviewPage";
+import SupportLibraryPage from "./pages/SupportLibraryPage";
 
 const AppContent = () => {
   const { checkAuth } = useAuth();
@@ -168,6 +169,16 @@ const AppContent = () => {
                   </h2>
                   <p className="text-gray-600">Coming Soon...</p>
                 </div>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/support-library"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <SupportLibraryPage />
               </Layout>
             </ProtectedRoute>
           }

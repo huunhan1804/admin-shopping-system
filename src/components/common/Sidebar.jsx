@@ -1,9 +1,25 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Home, Users, Package, BarChart3, Shield,
-  ChevronDown, ChevronRight, Clock, FileText, UserCheck,
-  Store, LogOut, Menu, X, User, Activity, Grid, ChevronLeft,
+  Home,
+  Users,
+  Package,
+  BarChart3,
+  Shield,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  FileText,
+  UserCheck,
+  Store,
+  LogOut,
+  Menu,
+  X,
+  User,
+  Activity,
+  Grid,
+  ChevronLeft,
+  BookOpen,
 } from "lucide-react";
 import apiService from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
@@ -17,7 +33,9 @@ const Badge = memo(({ count, variant = "yellow" }) => {
     blue: "bg-blue-500 text-white",
   };
   return (
-    <span className={`${variants[variant]} text-xs px-2 py-1 rounded-full ml-auto animate-pulse`}>
+    <span
+      className={`${variants[variant]} text-xs px-2 py-1 rounded-full ml-auto animate-pulse`}
+    >
       {count > 99 ? "99+" : count}
     </span>
   );
@@ -27,7 +45,8 @@ Badge.displayName = "Badge";
 const shallowEqual = (a, b) => {
   if (a === b) return true;
   if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
-  const ka = Object.keys(a), kb = Object.keys(b);
+  const ka = Object.keys(a),
+    kb = Object.keys(b);
   if (ka.length !== kb.length) return false;
   for (const k of ka) if (a[k] !== b[k]) return false;
   return true;
@@ -54,8 +73,12 @@ const Sidebar = () => {
   // ---- Polling thông minh ----
   const loadPendingCounts = useCallback(async (signal) => {
     try {
-      const response = await apiService.get("/admin/pending-counts", { signal });
-      setPendingCounts(prev => (shallowEqual(prev, response) ? prev : response));
+      const response = await apiService.get("/admin/pending-counts", {
+        signal,
+      });
+      setPendingCounts((prev) =>
+        shallowEqual(prev, response) ? prev : response
+      );
     } catch (err) {
       if (err?.name === "AbortError") return;
       // console.error(err);
@@ -79,7 +102,8 @@ const Sidebar = () => {
     };
 
     const onVisibility = () => {
-      if (document.visibilityState === "visible") loadPendingCounts(controller.signal);
+      if (document.visibilityState === "visible")
+        loadPendingCounts(controller.signal);
     };
     const onFocus = () => loadPendingCounts(controller.signal);
 
@@ -99,7 +123,7 @@ const Sidebar = () => {
   // ---- Auto-expand theo route ----
   useEffect(() => {
     const path = location.pathname;
-    setExpandedMenus(prev => ({
+    setExpandedMenus((prev) => ({
       ...prev,
       products: prev.products || path.startsWith("/products"),
       users: prev.users || path.startsWith("/users"),
@@ -109,146 +133,282 @@ const Sidebar = () => {
   }, [location.pathname]);
 
   const toggleMenu = useCallback((menuKey) => {
-    setExpandedMenus(prev => ({ ...prev, [menuKey]: !prev[menuKey] }));
+    setExpandedMenus((prev) => ({ ...prev, [menuKey]: !prev[menuKey] }));
   }, []);
-  const toggleCollapse = useCallback(() => setIsCollapsed(v => !v), []);
-  const toggleMobile = useCallback(() => setIsMobileOpen(v => !v), []);
+  const toggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
+  const toggleMobile = useCallback(() => setIsMobileOpen((v) => !v), []);
   const handleLogout = useCallback(async () => {
     if (window.confirm("Bạn có chắc muốn đăng xuất?")) await logout();
   }, [logout]);
 
-  const isActiveChild = useCallback((childPath) => {
-    const full = location.pathname + location.search;
-    return full === childPath || location.pathname === childPath;
-  }, [location.pathname, location.search]);
-
-  const menuItems = useMemo(() => ([
-    { path: "/dashboard", label: "Dashboard", icon: Home, exact: true, description: "Tổng quan hệ thống" },
-    {
-      key: "products", label: "Quản lý sản phẩm", icon: Package, expandable: true, description: "Sản phẩm cửa hàng",
-      children: [
-        { path: "/products", label: "Tất cả sản phẩm", icon: Grid, description: "Danh sách toàn bộ sản phẩm" },
-        { path: "/products/pending", label: "Chờ duyệt", icon: Clock, badge: pendingCounts.pendingProducts, badgeVariant: "yellow", description: "Sản phẩm cần phê duyệt" },
-      ],
+  const isActiveChild = useCallback(
+    (childPath) => {
+      const full = location.pathname + location.search;
+      return full === childPath || location.pathname === childPath;
     },
-    {
-      key: "users", label: "Quản lý tài khoản", icon: Users, expandable: true, description: "Quản lý người dùng",
-      children: [
-        { path: "/users/customers", label: "Khách hàng", icon: User, description: "Quản lý khách hàng" },
-        { path: "/users/agencies", label: "Agency", icon: Store, description: "Quản lý đại lý bán hàng" },
-        { path: "/users/agencies/applications", label: "Đơn đăng ký Agency", icon: FileText, badge: pendingCounts.pendingApplications, badgeVariant: "blue", description: "Đơn đăng ký cần duyệt" },
-      ],
-    },
-    {
-      key: "insurance", label: "Quản lý bảo hiểm", icon: Shield, expandable: true, description: "Yêu cầu bồi thường",
-      children: [
-        { path: "/insurance", label: "Tất cả yêu cầu", icon: Shield, description: "Danh sách yêu cầu bồi thường" },
-        { path: "/insurance?status=SUBMITTED", label: "Chờ xử lý", icon: Clock, badge: pendingCounts.pendingClaims, badgeVariant: "red", description: "Yêu cầu chờ xử lý" },
-        { path: "/insurance?status=UNDER_REVIEW", label: "Đang xem xét", icon: Activity, description: "Đang được xem xét" },
-        { path: "/insurance?status=APPROVED", label: "Đã duyệt", icon: UserCheck, description: "Đã được phê duyệt" },
-      ],
-    },
-    { path: "/reports", label: "Báo cáo và Phân tích", icon: BarChart3, exact: true, description: "Thống kê và báo cáo" },
-  ]), [pendingCounts]);
+    [location.pathname, location.search]
+  );
 
-  const renderMenuItem = useCallback((item) => {
-    if (item.expandable) {
-      const isExpanded = expandedMenus[item.key];
-      const hasActivePath = item.children?.some((child) => isActiveChild(child.path));
+  const menuItems = useMemo(
+    () => [
+      {
+        path: "/dashboard",
+        label: "Dashboard",
+        icon: Home,
+        exact: true,
+        description: "Tổng quan hệ thống",
+      },
+      {
+        key: "products",
+        label: "Quản lý sản phẩm",
+        icon: Package,
+        expandable: true,
+        description: "Sản phẩm cửa hàng",
+        children: [
+          {
+            path: "/products",
+            label: "Tất cả sản phẩm",
+            icon: Grid,
+            description: "Danh sách toàn bộ sản phẩm",
+          },
+          {
+            path: "/products/pending",
+            label: "Chờ duyệt",
+            icon: Clock,
+            badge: pendingCounts.pendingProducts,
+            badgeVariant: "yellow",
+            description: "Sản phẩm cần phê duyệt",
+          },
+        ],
+      },
+      {
+        key: "users",
+        label: "Quản lý tài khoản",
+        icon: Users,
+        expandable: true,
+        description: "Quản lý người dùng",
+        children: [
+          {
+            path: "/users/customers",
+            label: "Khách hàng",
+            icon: User,
+            description: "Quản lý khách hàng",
+          },
+          {
+            path: "/users/agencies",
+            label: "Agency",
+            icon: Store,
+            description: "Quản lý đại lý bán hàng",
+          },
+          {
+            path: "/users/agencies/applications",
+            label: "Đơn đăng ký Agency",
+            icon: FileText,
+            badge: pendingCounts.pendingApplications,
+            badgeVariant: "blue",
+            description: "Đơn đăng ký cần duyệt",
+          },
+        ],
+      },
+      {
+        key: "insurance",
+        label: "Quản lý bảo hiểm",
+        icon: Shield,
+        expandable: true,
+        description: "Yêu cầu bồi thường",
+        children: [
+          {
+            path: "/insurance",
+            label: "Tất cả yêu cầu",
+            icon: Shield,
+            description: "Danh sách yêu cầu bồi thường",
+          },
+          {
+            path: "/insurance?status=SUBMITTED",
+            label: "Chờ xử lý",
+            icon: Clock,
+            badge: pendingCounts.pendingClaims,
+            badgeVariant: "red",
+            description: "Yêu cầu chờ xử lý",
+          },
+          {
+            path: "/insurance?status=UNDER_REVIEW",
+            label: "Đang xem xét",
+            icon: Activity,
+            description: "Đang được xem xét",
+          },
+          {
+            path: "/insurance?status=APPROVED",
+            label: "Đã duyệt",
+            icon: UserCheck,
+            description: "Đã được phê duyệt",
+          },
+        ],
+      },
+      {
+        path: "/reports",
+        label: "Báo cáo và Phân tích",
+        icon: BarChart3,
+        exact: true,
+        description: "Thống kê và báo cáo",
+      },
+      {
+        label: "Thư viện hỗ trợ",
+        path: "/support-library",
+        icon: BookOpen,
+        badge: null,
+      },
+    ],
+    [pendingCounts]
+  );
 
-      return (
-        <li key={item.key} className="mb-1">
-          <button
-            onClick={() => toggleMenu(item.key)}
-            className={`w-full flex items-center justify-between px-3 py-3 rounded-lg transition-all duration-200 group ${
-              hasActivePath
-                ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-400 ring-opacity-50"
-                : "text-gray-300 hover:bg-gray-700 hover:text-white"
-            }`}
-            title={isCollapsed ? item.label : ""}
-          >
-            <div className="flex items-center min-w-0">
-              <item.icon className={`${isCollapsed ? "w-6 h-6" : "w-5 h-5"} mr-3 flex-shrink-0 ${hasActivePath ? "text-blue-100" : ""}`} />
-              {!isCollapsed && (
-                <div className="min-w-0 flex-1">
-                  <span className={`text-sm font-medium block truncate ${hasActivePath ? "text-white" : ""}`}>{item.label}</span>
-                  <span className={`text-xs block truncate ${hasActivePath ? "text-blue-100" : "text-gray-400"}`}>{item.description}</span>
-                </div>
-              )}
-            </div>
-            {!isCollapsed && (
-              <div className="flex items-center ml-2">
-                {item.children?.some((child) => child.badge) && (
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse" />
-                )}
-                {isExpanded ? (
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${hasActivePath ? "text-blue-100" : ""}`} />
-                ) : (
-                  <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${hasActivePath ? "text-blue-100" : ""}`} />
+  const renderMenuItem = useCallback(
+    (item) => {
+      if (item.expandable) {
+        const isExpanded = expandedMenus[item.key];
+        const hasActivePath = item.children?.some((child) =>
+          isActiveChild(child.path)
+        );
+
+        return (
+          <li key={item.key} className="mb-1">
+            <button
+              onClick={() => toggleMenu(item.key)}
+              className={`w-full flex items-center justify-between px-3 py-3 rounded-lg transition-all duration-200 group ${
+                hasActivePath
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-400 ring-opacity-50"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
+              title={isCollapsed ? item.label : ""}
+            >
+              <div className="flex items-center min-w-0">
+                <item.icon
+                  className={`${
+                    isCollapsed ? "w-6 h-6" : "w-5 h-5"
+                  } mr-3 flex-shrink-0 ${hasActivePath ? "text-blue-100" : ""}`}
+                />
+                {!isCollapsed && (
+                  <div className="min-w-0 flex-1">
+                    <span
+                      className={`text-sm font-medium block truncate ${
+                        hasActivePath ? "text-white" : ""
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                    <span
+                      className={`text-xs block truncate ${
+                        hasActivePath ? "text-blue-100" : "text-gray-400"
+                      }`}
+                    >
+                      {item.description}
+                    </span>
+                  </div>
                 )}
               </div>
-            )}
-          </button>
+              {!isCollapsed && (
+                <div className="flex items-center ml-2">
+                  {item.children?.some((child) => child.badge) && (
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse" />
+                  )}
+                  {isExpanded ? (
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        hasActivePath ? "text-blue-100" : ""
+                      }`}
+                    />
+                  ) : (
+                    <ChevronRight
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        hasActivePath ? "text-blue-100" : ""
+                      }`}
+                    />
+                  )}
+                </div>
+              )}
+            </button>
 
-          {isExpanded && !isCollapsed && (
-            <ul className="mt-2 space-y-1 border-l-2 border-gray-600 pl-4">
-              {item.children.map((child) => (
-                <li key={child.path}>
-                  <NavLink
-                    to={child.path}
-                    className={({ isActive }) =>
-                      `flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 group ${
-                        isActive
-                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg ring-2 ring-blue-300 ring-opacity-30"
-                          : "text-gray-300 hover:bg-gray-700 hover:text-white hover:shadow-md"
-                      }`
-                    }
-                    title={child.description}
-                  >
-                    <child.icon className="w-4 h-4 mr-3 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <span className="block truncate font-medium">{child.label}</span>
-                      <span className={`text-xs block truncate ${isActiveChild(child.path) ? "text-blue-100" : "text-gray-400"}`}>
-                        {child.description}
-                      </span>
-                    </div>
-                    <Badge count={child.badge} variant={child.badgeVariant} />
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          )}
+            {isExpanded && !isCollapsed && (
+              <ul className="mt-2 space-y-1 border-l-2 border-gray-600 pl-4">
+                {item.children.map((child) => (
+                  <li key={child.path}>
+                    <NavLink
+                      to={child.path}
+                      className={({ isActive }) =>
+                        `flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 group ${
+                          isActive
+                            ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg ring-2 ring-blue-300 ring-opacity-30"
+                            : "text-gray-300 hover:bg-gray-700 hover:text-white hover:shadow-md"
+                        }`
+                      }
+                      title={child.description}
+                    >
+                      <child.icon className="w-4 h-4 mr-3 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <span className="block truncate font-medium">
+                          {child.label}
+                        </span>
+                        <span
+                          className={`text-xs block truncate ${
+                            isActiveChild(child.path)
+                              ? "text-blue-100"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {child.description}
+                        </span>
+                      </div>
+                      <Badge count={child.badge} variant={child.badgeVariant} />
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      }
+
+      return (
+        <li key={item.path} className="mb-1">
+          <NavLink
+            to={item.path}
+            end={item.exact}
+            className={({ isActive }) =>
+              `flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
+                isActive
+                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg ring-2 ring-blue-300 ring-opacity-30 transform scale-[1.02]"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white hover:shadow-md hover:transform hover:scale-[1.01]"
+              }`
+            }
+            title={isCollapsed ? item.label : item.description}
+          >
+            <item.icon
+              className={`${
+                isCollapsed ? "w-6 h-6" : "w-5 h-5"
+              } mr-3 flex-shrink-0`}
+            />
+            {!isCollapsed && (
+              <div className="min-w-0 flex-1">
+                <span className="text-sm font-medium block truncate">
+                  {item.label}
+                </span>
+                <span
+                  className={`text-xs block truncate ${
+                    location.pathname === item.path
+                      ? "text-blue-100"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {item.description}
+                </span>
+              </div>
+            )}
+          </NavLink>
         </li>
       );
-    }
-
-    return (
-      <li key={item.path} className="mb-1">
-        <NavLink
-          to={item.path}
-          end={item.exact}
-          className={({ isActive }) =>
-            `flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
-              isActive
-                ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg ring-2 ring-blue-300 ring-opacity-30 transform scale-[1.02]"
-                : "text-gray-300 hover:bg-gray-700 hover:text-white hover:shadow-md hover:transform hover:scale-[1.01]"
-            }`
-          }
-          title={isCollapsed ? item.label : item.description}
-        >
-          <item.icon className={`${isCollapsed ? "w-6 h-6" : "w-5 h-5"} mr-3 flex-shrink-0`} />
-          {!isCollapsed && (
-            <div className="min-w-0 flex-1">
-              <span className="text-sm font-medium block truncate">{item.label}</span>
-              <span className={`text-xs block truncate ${location.pathname === item.path ? "text-blue-100" : "text-gray-400"}`}>
-                {item.description}
-              </span>
-            </div>
-          )}
-        </NavLink>
-      </li>
-    );
-  }, [expandedMenus, isCollapsed, isActiveChild, location.pathname, toggleMenu]);
+    },
+    [expandedMenus, isCollapsed, isActiveChild, location.pathname, toggleMenu]
+  );
 
   const sidebarWidth = isCollapsed ? "w-20" : "w-72";
   const mobileClasses = isMobileOpen ? "translate-x-0" : "-translate-x-full";
@@ -256,14 +416,21 @@ const Sidebar = () => {
   return (
     <>
       {isMobileOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={toggleMobile} />
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={toggleMobile}
+        />
       )}
 
       <button
         onClick={toggleMobile}
         className="fixed top-4 left-4 z-50 lg:hidden bg-gray-800 text-white p-2 rounded-lg shadow-lg"
       >
-        {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        {isMobileOpen ? (
+          <X className="w-5 h-5" />
+        ) : (
+          <Menu className="w-5 h-5" />
+        )}
       </button>
 
       <aside
@@ -273,7 +440,11 @@ const Sidebar = () => {
         transition-all duration-300 ease-in-out
         ${mobileClasses} lg:translate-x-0`}
       >
-        <div className={`border-b border-gray-700 bg-gradient-to-r from-indigo-600 to-purple-600 ${isCollapsed ? "p-2" : "p-4"}`}>
+        <div
+          className={`border-b border-gray-700 bg-gradient-to-r from-indigo-600 to-purple-600 ${
+            isCollapsed ? "p-2" : "p-4"
+          }`}
+        >
           {isCollapsed ? (
             <div className="flex justify-center">
               <button
@@ -313,18 +484,26 @@ const Sidebar = () => {
             pendingCounts.pendingApplications > 0 ||
             pendingCounts.pendingClaims > 0) && (
             <div className="p-4 border-b border-gray-700">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Cần xử lý</h3>
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                Cần xử lý
+              </h3>
               <div className="space-y-2">
                 {pendingCounts.pendingProducts > 0 && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-300">Sản phẩm</span>
-                    <Badge count={pendingCounts.pendingProducts} variant="yellow" />
+                    <Badge
+                      count={pendingCounts.pendingProducts}
+                      variant="yellow"
+                    />
                   </div>
                 )}
                 {pendingCounts.pendingApplications > 0 && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-300">Đơn đăng ký</span>
-                    <Badge count={pendingCounts.pendingApplications} variant="blue" />
+                    <Badge
+                      count={pendingCounts.pendingApplications}
+                      variant="blue"
+                    />
                   </div>
                 )}
                 {pendingCounts.pendingClaims > 0 && (
@@ -364,10 +543,19 @@ const Sidebar = () => {
       </aside>
 
       <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
       `}</style>
     </>
   );

@@ -48,6 +48,24 @@ const ArticleModal = ({ isOpen, mode, article, categoryId, onClose, onSave, savi
   }, [errors.articleContent]);
 
 
+  const extractImagesFromHtml = (html) => {
+  // tạo thẻ tạm để query
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = html || "";
+
+  // lấy tất cả ảnh trong editor (ưu tiên .image-list img, fallback toàn bộ img)
+  const imgs = wrapper.querySelectorAll(".image-list img, img");
+  const list = [];
+  imgs.forEach(img => {
+    const src = (img.getAttribute("src") || "").trim();
+    if (src) list.push(src);
+  });
+
+  return Array.from(new Set(list)); // unique
+};
+
+
+
   const validate = () => {
     const newErrors = {};
 
@@ -63,13 +81,18 @@ const ArticleModal = ({ isOpen, mode, article, categoryId, onClose, onSave, savi
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = (e) => {
+  e.preventDefault();
+  if (!validate()) return;
 
-    if (validate()) {
-      onSave(formData);
-    }
-  };
+  const articleImages = extractImagesFromHtml(formData.articleContent);
+
+  // gửi thêm field articleImages (array)
+  onSave({
+    ...formData,
+    articleImages
+  });
+};
 
   if (!isOpen) return null;
 

@@ -41,18 +41,33 @@ class SupportService {
   }
 
   async createArticle(categoryId, data) {
-    return await apiService.post(
-      `/admin/support/categories/${categoryId}/articles`,
-      data
-    );
+   const payload = {
+  articleTitle: data.articleTitle,
+  articleContent: data.articleContent,
+  isVisible: data.isVisible,
+  articleImages: data.articleImages || []    // ⬅️ THÊM
+};
+return await apiService.post(
+  `/admin/support/categories/${categoryId}/articles`,
+  payload
+);
   }
 
   async getArticleById(articleId) {
     return await apiService.get(`/admin/support/articles/${articleId}`);
   }
 
-  async updateArticle(articleId, data) {
-    return await apiService.put(`/admin/support/articles/${articleId}`, data);
+  async updateArticle(categoryId,articleId, data) {
+    const payload = {
+  articleTitle: data.articleTitle,
+  articleContent: data.articleContent,
+  isVisible: data.isVisible,
+  articleImages: data.articleImages || []    // ⬅️ THÊM
+};
+return await apiService.put(
+  `/admin/support/categories/${categoryId}/articles/${articleId}`,
+  payload
+);
   }
 
   async deleteArticle(articleId) {
@@ -77,6 +92,7 @@ class SupportService {
     });
   }
 }
+
 
 const supportService = new SupportService();
 export default supportService;

@@ -1,32 +1,43 @@
-// components/common/RichTextEditor.jsx
-import React, { useRef, useState } from 'react';
-import { 
-  Bold, 
-  Italic, 
+import React, { useRef, useState, useEffect } from 'react';
+import {
+  Bold,
+  Italic,
   Underline,
-  List, 
+  List,
   ListOrdered,
-  Link, 
-  Image, 
+  Link,
+  // Image,   // removed
   Code,
   Quote,
   Heading2,
   Undo,
   Redo
 } from 'lucide-react';
+import { Image, Camera } from 'lucide-react';
+
+
 
 const BIDI_CONTROL_REGEX = /[\u202A-\u202E\u2066-\u2069\u200E\u200F]/g;
-
 
 const RichTextEditor = ({ value, onChange, placeholder, error }) => {
   const editorRef = useRef(null);
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
+  const lastExternalHtml = useRef('');
+  const fileInputRef = useRef(null);
+const cameraInputRef = useRef(null);
 
-  const executeCommand = (command, value = null) => {
-    document.execCommand(command, false, value);
+const handleFileSelected = (file) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    exec('insertHTML', `<img src="${reader.result}" alt="" style="max-width:100%;height:auto;" />`);
+  };
+  reader.readAsDataURL(file);
+};
 
-  const lastExternalHtml = useRef(''); // track html đã sync từ props
+const pickFromDevice = () => fileInputRef.current?.click();
+const captureFromCamera = () => cameraInputRef.current?.click(); // track html đã sync từ props
 
   // ép LTR & canh trái ngay từ đầu
   useEffect(() => {
@@ -59,37 +70,36 @@ const RichTextEditor = ({ value, onChange, placeholder, error }) => {
   const exec = (cmd, val = null) => {
     document.execCommand(cmd, false, val);
     // giữ LTR
-
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+      editorRef.current.setAttribute('dir', 'ltr');
+      editorRef.current.style.direction = 'ltr';
+      editorRef.current.style.textAlign = 'left';
     }
-  };
-
-  const handleFormat = (command) => {
-    executeCommand(command);
-  };
-
-  const handleLink = () => {
-    if (linkUrl) {
-      executeCommand('createLink', linkUrl);
-      setShowLinkDialog(false);
-      setLinkUrl('');
-    }
-  };
-
-  const handleImage = () => {
-    const url = prompt('Nhập URL hình ảnh:');
-    if (url) {
-      executeCommand('insertImage', url);
-    }
+    emitChange();
   };
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const text = e.clipboardData.getData('text/plain');
-    document.execCommand('insertText', false, text);
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
+    const clean = text.replace(BIDI_CONTROL_REGEX, '');
+    document.execCommand('insertText', false, clean);
+    emitChange();
+  };
+
+  const handleInput = () => {
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+      editorRef.current.setAttribute('dir', 'ltr');
+      editorRef.current.style.direction = 'ltr';
+      editorRef.current.style.textAlign = 'left';
+    }
+    emitChange();
+  };
+
+  const handleLink = () => {
+    if (linkUrl) {
+      exec('createLink', linkUrl);
+      setShowLinkDialog(false);
+      setLinkUrl('');
     }
   };
 
@@ -98,126 +108,91 @@ const RichTextEditor = ({ value, onChange, placeholder, error }) => {
       {/* Toolbar */}
       <div className="border-b bg-gray-50 p-2 flex flex-wrap gap-1">
         <div className="flex items-center space-x-1 border-r pr-2 mr-2">
-          <button
-            type="button"
-            onClick={() => executeCommand('undo')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Hoàn tác"
-          >
+          <button type="button" onClick={() => exec('undo')} className="p-2 hover:bg-gray-200 rounded" title="Hoàn tác">
             <Undo className="w-4 h-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => executeCommand('redo')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Làm lại"
-          >
+          <button type="button" onClick={() => exec('redo')} className="p-2 hover:bg-gray-200 rounded" title="Làm lại">
             <Redo className="w-4 h-4" />
           </button>
         </div>
 
         <div className="flex items-center space-x-1 border-r pr-2 mr-2">
-          <button
-            type="button"
-            onClick={() => handleFormat('bold')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="In đậm"
-          >
+          <button type="button" onClick={() => exec('bold')} className="p-2 hover:bg-gray-200 rounded" title="In đậm">
             <Bold className="w-4 h-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => handleFormat('italic')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="In nghiêng"
-          >
+          <button type="button" onClick={() => exec('italic')} className="p-2 hover:bg-gray-200 rounded" title="In nghiêng">
             <Italic className="w-4 h-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => handleFormat('underline')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Gạch chân"
-          >
+          <button type="button" onClick={() => exec('underline')} className="p-2 hover:bg-gray-200 rounded" title="Gạch chân">
             <Underline className="w-4 h-4" />
           </button>
         </div>
 
         <div className="flex items-center space-x-1 border-r pr-2 mr-2">
-          <button
-            type="button"
-            onClick={() => executeCommand('formatBlock', '<h2>')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Tiêu đề"
-          >
+          <button type="button" onClick={() => exec('formatBlock', '<h2>')} className="p-2 hover:bg-gray-200 rounded" title="Tiêu đề">
             <Heading2 className="w-4 h-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => executeCommand('formatBlock', '<blockquote>')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Trích dẫn"
-          >
+          <button type="button" onClick={() => exec('formatBlock', '<blockquote>')} className="p-2 hover:bg-gray-200 rounded" title="Trích dẫn">
             <Quote className="w-4 h-4" />
           </button>
         </div>
 
         <div className="flex items-center space-x-1 border-r pr-2 mr-2">
-          <button
-            type="button"
-            onClick={() => handleFormat('insertUnorderedList')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Danh sách"
-          >
+          <button type="button" onClick={() => exec('insertUnorderedList')} className="p-2 hover:bg-gray-200 rounded" title="Danh sách">
             <List className="w-4 h-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => handleFormat('insertOrderedList')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Danh sách có thứ tự"
-          >
+          <button type="button" onClick={() => exec('insertOrderedList')} className="p-2 hover:bg-gray-200 rounded" title="Danh sách có thứ tự">
             <ListOrdered className="w-4 h-4" />
           </button>
         </div>
 
+        
+
         <div className="flex items-center space-x-1">
-          <button
-            type="button"
-            onClick={() => setShowLinkDialog(true)}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Chèn liên kết"
-          >
+          <button type="button" onClick={() => setShowLinkDialog(true)} className="p-2 hover:bg-gray-200 rounded" title="Chèn liên kết">
             <Link className="w-4 h-4" />
           </button>
-          <button
-            type="button"
-            onClick={handleImage}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Chèn hình ảnh"
-          >
-            <Image className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => executeCommand('formatBlock', '<pre>')}
-            className="p-2 hover:bg-gray-200 rounded"
-            title="Code"
-          >
+          {/* Bỏ nút chèn hình ảnh */}
+          <button type="button" onClick={() => exec('formatBlock', '<pre>')} className="p-2 hover:bg-gray-200 rounded" title="Code">
             <Code className="w-4 h-4" />
           </button>
         </div>
       </div>
-
+        {/* Chèn ảnh */}
+<div className="flex items-center space-x-1 border-r pr-2 mr-2">
+  <button type="button" onClick={pickFromDevice} className="p-2 hover:bg-gray-200 rounded" title="Tải từ thiết bị">
+    <Image className="w-4 h-4" />
+  </button>
+  <button type="button" onClick={captureFromCamera} className="p-2 hover:bg-gray-200 rounded" title="Chụp ảnh">
+    <Camera className="w-4 h-4" />
+  </button>
+  {/* hidden inputs */}
+  <input
+    type="file"
+    accept="image/*"
+    ref={fileInputRef}
+    style={{ display: 'none' }}
+    onChange={(e) => handleFileSelected(e.target.files?.[0])}
+  />
+  <input
+    type="file"
+    accept="image/*"
+    capture="environment"
+    ref={cameraInputRef}
+    style={{ display: 'none' }}
+    onChange={(e) => handleFileSelected(e.target.files?.[0])}
+  />
+</div>
       {/* Editor */}
       <div
         ref={editorRef}
         contentEditable
-        className="min-h-[300px] p-4 focus:outline-none"
-        placeholder={placeholder}
-        onInput={(e) => onChange(e.currentTarget.innerHTML)}
+        dir="ltr"
+        className="min-h-[300px] p-4 focus:outline-none text-left"
+        onInput={handleInput}
         onPaste={handlePaste}
-        dangerouslySetInnerHTML={{ __html: value }}
+        // KHÔNG dùng dangerouslySetInnerHTML ở đây nữa mỗi render
+        data-placeholder={placeholder}
       />
 
       {/* Link Dialog */}
@@ -230,18 +205,10 @@ const RichTextEditor = ({ value, onChange, placeholder, error }) => {
             placeholder="Nhập URL..."
             className="px-3 py-2 border rounded-lg mr-2"
           />
-          <button
-            type="button"
-            onClick={handleLink}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
+          <button type="button" onClick={handleLink} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
             Chèn
           </button>
-          <button
-            type="button"
-            onClick={() => setShowLinkDialog(false)}
-            className="px-4 py-2 ml-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-          >
+          <button type="button" onClick={() => setShowLinkDialog(false)} className="px-4 py-2 ml-2 text-gray-700 hover:bg-gray-100 rounded-lg">
             Hủy
           </button>
         </div>

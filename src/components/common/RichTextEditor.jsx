@@ -14,21 +14,18 @@ import {
   Undo,
   Redo
 } from 'lucide-react';
-<<<<<<< HEAD
-=======
 
 const BIDI_CONTROL_REGEX = /[\u202A-\u202E\u2066-\u2069\u200E\u200F]/g;
->>>>>>> parent of 7985935 (ok)
+
 
 const RichTextEditor = ({ value, onChange, placeholder, error }) => {
   const editorRef = useRef(null);
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
-<<<<<<< HEAD
 
   const executeCommand = (command, value = null) => {
     document.execCommand(command, false, value);
-=======
+
   const lastExternalHtml = useRef(''); // track html đã sync từ props
 
   // ép LTR & canh trái ngay từ đầu
@@ -62,7 +59,7 @@ const RichTextEditor = ({ value, onChange, placeholder, error }) => {
   const exec = (cmd, val = null) => {
     document.execCommand(cmd, false, val);
     // giữ LTR
->>>>>>> parent of 7985935 (ok)
+
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML);
     }

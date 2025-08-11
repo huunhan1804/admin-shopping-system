@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 import React, { useRef, useState, useEffect } from "react";
 import {
   Bold,
   Italic,
+=======
+// components/common/RichTextEditor.jsx
+import React, { useRef, useState } from 'react';
+import { 
+  Bold, 
+  Italic, 
+>>>>>>> parent of 56b74bd (update)
   Underline,
-  List,
+  List, 
   ListOrdered,
-  Link,
-  // Image,   // removed
+  Link, 
+  Image, 
   Code,
   Quote,
   Heading2,
@@ -15,11 +23,10 @@ import {
 } from "lucide-react";
 import { Image, Camera } from "lucide-react";
 
-const BIDI_CONTROL_REGEX = /[\u202A-\u202E\u2066-\u2069\u200E\u200F]/g;
-
 const RichTextEditor = ({ value, onChange, placeholder, error }) => {
   const editorRef = useRef(null);
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+<<<<<<< HEAD
   const [linkUrl, setLinkUrl] = useState("");
   const lastExternalHtml = useRef("");
   const fileInputRef = useRef(null);
@@ -173,10 +180,18 @@ const handleFileSelected = (file) => {
       editorRef.current.setAttribute("dir", "ltr");
       editorRef.current.style.direction = "ltr";
       editorRef.current.style.textAlign = "left";
+=======
+  const [linkUrl, setLinkUrl] = useState('');
+
+  const executeCommand = (command, value = null) => {
+    document.execCommand(command, false, value);
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+>>>>>>> parent of 56b74bd (update)
     }
-    emitChange();
   };
 
+<<<<<<< HEAD
   const handlePaste = (e) => {
     e.preventDefault();
     const text =
@@ -193,13 +208,37 @@ const handleFileSelected = (file) => {
       editorRef.current.style.textAlign = "left";
     }
     emitChange();
+=======
+  const handleFormat = (command) => {
+    executeCommand(command);
+>>>>>>> parent of 56b74bd (update)
   };
 
   const handleLink = () => {
     if (linkUrl) {
+<<<<<<< HEAD
       exec("createLink", linkUrl);
+=======
+      executeCommand('createLink', linkUrl);
+>>>>>>> parent of 56b74bd (update)
       setShowLinkDialog(false);
       setLinkUrl("");
+    }
+  };
+
+  const handleImage = () => {
+    const url = prompt('Nhập URL hình ảnh:');
+    if (url) {
+      executeCommand('insertImage', url);
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData('text/plain');
+    document.execCommand('insertText', false, text);
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
     }
   };
 
@@ -214,7 +253,11 @@ const handleFileSelected = (file) => {
         <div className="flex items-center space-x-1 border-r pr-2 mr-2">
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => exec("undo")}
+=======
+            onClick={() => executeCommand('undo')}
+>>>>>>> parent of 56b74bd (update)
             className="p-2 hover:bg-gray-200 rounded"
             title="Hoàn tác"
           >
@@ -222,7 +265,11 @@ const handleFileSelected = (file) => {
           </button>
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => exec("redo")}
+=======
+            onClick={() => executeCommand('redo')}
+>>>>>>> parent of 56b74bd (update)
             className="p-2 hover:bg-gray-200 rounded"
             title="Làm lại"
           >
@@ -233,7 +280,11 @@ const handleFileSelected = (file) => {
         <div className="flex items-center space-x-1 border-r pr-2 mr-2">
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => exec("bold")}
+=======
+            onClick={() => handleFormat('bold')}
+>>>>>>> parent of 56b74bd (update)
             className="p-2 hover:bg-gray-200 rounded"
             title="In đậm"
           >
@@ -241,7 +292,11 @@ const handleFileSelected = (file) => {
           </button>
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => exec("italic")}
+=======
+            onClick={() => handleFormat('italic')}
+>>>>>>> parent of 56b74bd (update)
             className="p-2 hover:bg-gray-200 rounded"
             title="In nghiêng"
           >
@@ -249,7 +304,11 @@ const handleFileSelected = (file) => {
           </button>
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => exec("underline")}
+=======
+            onClick={() => handleFormat('underline')}
+>>>>>>> parent of 56b74bd (update)
             className="p-2 hover:bg-gray-200 rounded"
             title="Gạch chân"
           >
@@ -260,7 +319,11 @@ const handleFileSelected = (file) => {
         <div className="flex items-center space-x-1 border-r pr-2 mr-2">
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => exec("formatBlock", "<h2>")}
+=======
+            onClick={() => executeCommand('formatBlock', '<h2>')}
+>>>>>>> parent of 56b74bd (update)
             className="p-2 hover:bg-gray-200 rounded"
             title="Tiêu đề"
           >
@@ -268,7 +331,11 @@ const handleFileSelected = (file) => {
           </button>
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => exec("formatBlock", "<blockquote>")}
+=======
+            onClick={() => executeCommand('formatBlock', '<blockquote>')}
+>>>>>>> parent of 56b74bd (update)
             className="p-2 hover:bg-gray-200 rounded"
             title="Trích dẫn"
           >
@@ -279,7 +346,11 @@ const handleFileSelected = (file) => {
         <div className="flex items-center space-x-1 border-r pr-2 mr-2">
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => exec("insertUnorderedList")}
+=======
+            onClick={() => handleFormat('insertUnorderedList')}
+>>>>>>> parent of 56b74bd (update)
             className="p-2 hover:bg-gray-200 rounded"
             title="Danh sách"
           >
@@ -287,7 +358,11 @@ const handleFileSelected = (file) => {
           </button>
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => exec("insertOrderedList")}
+=======
+            onClick={() => handleFormat('insertOrderedList')}
+>>>>>>> parent of 56b74bd (update)
             className="p-2 hover:bg-gray-200 rounded"
             title="Danh sách có thứ tự"
           >
@@ -304,6 +379,7 @@ const handleFileSelected = (file) => {
           >
             <Link className="w-4 h-4" />
           </button>
+<<<<<<< HEAD
         </div>
 
         {/* Chèn ảnh */}
@@ -315,6 +391,23 @@ const handleFileSelected = (file) => {
             title="Tải từ thiết bị"
           >
             <Image className="w-4 h-4" />
+=======
+          <button
+            type="button"
+            onClick={handleImage}
+            className="p-2 hover:bg-gray-200 rounded"
+            title="Chèn hình ảnh"
+          >
+            <Image className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => executeCommand('formatBlock', '<pre>')}
+            className="p-2 hover:bg-gray-200 rounded"
+            title="Code"
+          >
+            <Code className="w-4 h-4" />
+>>>>>>> parent of 56b74bd (update)
           </button>
           <button
             type="button"
@@ -347,12 +440,11 @@ const handleFileSelected = (file) => {
       <div
         ref={editorRef}
         contentEditable
-        dir="ltr"
-        className="min-h-[300px] p-4 focus:outline-none text-left"
-        onInput={handleInput}
+        className="min-h-[300px] p-4 focus:outline-none"
+        placeholder={placeholder}
+        onInput={(e) => onChange(e.currentTarget.innerHTML)}
         onPaste={handlePaste}
-        // KHÔNG dùng dangerouslySetInnerHTML ở đây nữa mỗi render
-        data-placeholder={placeholder}
+        dangerouslySetInnerHTML={{ __html: value }}
       />
 
 

@@ -149,16 +149,22 @@ const RichTextEditor = ({ value, onChange, placeholder, error }) => {
 
 
       {/* Editor */}
-      <div
-        ref={editorRef}
-        contentEditable
-        dir="ltr"
-        className="min-h-[300px] p-4 focus:outline-none text-left"
-        onInput={handleInput}
-        onPaste={handlePaste}
-        // KHÔNG dùng dangerouslySetInnerHTML ở đây nữa mỗi render
-        data-placeholder={placeholder}
-      />
+    <div
+  ref={editorRef}
+  contentEditable
+  className="min-h-[300px] p-4 focus:outline-none"
+  placeholder={placeholder}
+  onInput={(e) => {
+    const newContent = e.currentTarget.innerHTML;
+    onChange(newContent); // luôn truyền nội dung mới
+  }}
+  onPaste={handlePaste}
+  suppressContentEditableWarning={true} // tránh warning
+>
+  {value && !editorRef.current?.innerHTML && (
+    <div dangerouslySetInnerHTML={{ __html: value }} />
+  )}
+</div>
 
       {/* Link Dialog */}
       {showLinkDialog && (

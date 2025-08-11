@@ -45,20 +45,15 @@ const ArticleModal = ({
     }
   };
 
-  const handleContentChange = (content) => {
-    setFormData((prev) => ({
-      ...prev,
-      articleContent: content,
-    }));
-
-    if (errors.articleContent) {
-      setErrors((prev) => ({
-        ...prev,
-        articleContent: "",
-      }));
-    }
-  };
-
+ const handleContentChange = (content) => {
+  setFormData(prev => ({
+    ...prev,
+    articleContent: content || ''  // chỉ nhận nội dung mới
+  }));
+  if (errors.articleContent) {
+    setErrors(prev => ({ ...prev, articleContent: '' }));
+  }
+};
   const extractImagesFromHtml = (html) => {
   // tạo thẻ tạm để query
   const wrapper = document.createElement("div");

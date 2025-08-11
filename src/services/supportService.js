@@ -57,17 +57,8 @@ return await apiService.post(
     return await apiService.get(`/admin/support/articles/${articleId}`);
   }
 
-  async updateArticle(categoryId,articleId, data) {
-    const payload = {
-  articleTitle: data.articleTitle,
-  articleContent: data.articleContent,
-  isVisible: data.isVisible,
-  articleImages: data.articleImages || []    // ⬅️ THÊM
-};
-return await apiService.put(
-  `/admin/support/categories/${categoryId}/articles/${articleId}`,
-  payload
-);
+  async updateArticle(articleId, data) {
+    return await apiService.put(`/admin/support/articles/${articleId}`, data);
   }
 
   async deleteArticle(articleId) {

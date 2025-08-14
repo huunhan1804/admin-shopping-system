@@ -201,16 +201,16 @@ const ProductReviewPage = () => {
       </button>
     );
 
-    actions.push(
-      <button
-        key="remove"
-        onClick={() => setActiveModal('remove')}
-        className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 flex items-center"
-      >
-        <Trash2 className="w-4 h-4 mr-2" />
-        Gỡ bỏ
-      </button>
-    );
+    // actions.push(
+    //   <button
+    //     key="remove"
+    //     onClick={() => setActiveModal('remove')}
+    //     className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 flex items-center"
+    //   >
+    //     <Trash2 className="w-4 h-4 mr-2" />
+    //     Gỡ bỏ
+    //   </button>
+    // );
 
     return actions;
   };

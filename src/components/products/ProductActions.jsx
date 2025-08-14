@@ -60,14 +60,14 @@ const ProductActions = ({ product, onAction }) => {
       icon: AlertTriangle,
       color: 'text-orange-600',
       onClick: () => setActiveModal('warn')
-    },
-    {
-      key: 'remove',
-      label: 'Gỡ bỏ',
-      icon: Trash2,
-      color: 'text-red-600',
-      onClick: () => setActiveModal('remove')
     }
+    // {
+    //   key: 'remove',
+    //   label: 'Gỡ bỏ',
+    //   icon: Trash2,
+    //   color: 'text-red-600',
+    //   onClick: () => setActiveModal('remove')
+    // }
   ];
 
   return (

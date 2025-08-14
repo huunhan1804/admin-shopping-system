@@ -14,9 +14,16 @@ const ProductActions = ({ product, onAction }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
 
-  const handleAction = (action, data = {}) => {
-    onAction(product.productId, action, data);
-    setActiveModal(null);
+  // Sửa lại hàm này để khớp với ProductReviewPage
+  const handleProductAction = async (productId, action, data = {}) => {
+    try {
+      // Gọi onAction từ parent component
+      await onAction(productId, action, data);
+      setActiveModal(null); // Đóng modal sau khi thành công
+    } catch (error) {
+      console.error('Error in ProductActions:', error);
+      setActiveModal(null); // Vẫn đóng modal ngay cả khi có lỗi
+    }
   };
 
   const actions = [
@@ -27,7 +34,7 @@ const ProductActions = ({ product, onAction }) => {
       color: 'text-blue-600',
       onClick: () => window.open(`/products/review/${product.productId}`, '_blank')
     },
-    ...(product.status === 'pending' ? [
+    ...(product.status === 'PENDING' ? [
       {
         key: 'approve',
         label: 'Phê duyệt',
@@ -35,7 +42,7 @@ const ProductActions = ({ product, onAction }) => {
         color: 'text-green-600',
         onClick: () => {
           if (window.confirm('Phê duyệt sản phẩm này?')) {
-            handleAction('approve');
+            handleProductAction(product.productId, 'approve');
           }
         }
       },
@@ -52,22 +59,15 @@ const ProductActions = ({ product, onAction }) => {
       label: 'Yêu cầu sửa',
       icon: Edit,
       color: 'text-yellow-600',
-      onClick: () => setActiveModal('edit')
+      onClick: () => setActiveModal('request-edit') // <-- Đảm bảo tên action khớp
     },
     {
       key: 'warn',
       label: 'Cảnh báo',
       icon: AlertTriangle,
       color: 'text-orange-600',
-      onClick: () => setActiveModal('warn')
+      onClick: () => setActiveModal('warn-agency') // <-- Đảm bảo tên action khớp
     }
-    // {
-    //   key: 'remove',
-    //   label: 'Gỡ bỏ',
-    //   icon: Trash2,
-    //   color: 'text-red-600',
-    //   onClick: () => setActiveModal('remove')
-    // }
   ];
 
   return (
@@ -105,51 +105,39 @@ const ProductActions = ({ product, onAction }) => {
         </>
       )}
 
-{/* Modals */}
+     {/* Modals */}
       {activeModal === 'reject' && (
         <ActionModal
           isOpen={true}
           onClose={() => setActiveModal(null)}
           title="Từ chối sản phẩm"
           type="danger"
-          onConfirm={handleAction}
+          onConfirm={handleProductAction}
           action="reject"
           product={product}
         />
       )}
 
-      {activeModal === 'edit' && (
+      {activeModal === 'request-edit' && ( // <-- Sửa ở đây
         <ActionModal
           isOpen={true}
           onClose={() => setActiveModal(null)}
           title="Yêu cầu chỉnh sửa sản phẩm"
           type="warning"
-          onConfirm={handleAction}
+          onConfirm={handleProductAction}
           action="request-edit"
           product={product}
         />
       )}
 
-      {activeModal === 'warn' && (
+      {activeModal === 'warn-agency' && ( // <-- Sửa ở đây
         <ActionModal
           isOpen={true}
           onClose={() => setActiveModal(null)}
           title="Gửi cảnh báo đến Agency"
           type="warning"
-          onConfirm={handleAction}
+          onConfirm={handleProductAction}
           action="warn-agency"
-          product={product}
-        />
-      )}
-
-      {activeModal === 'remove' && (
-        <ActionModal
-          isOpen={true}
-          onClose={() => setActiveModal(null)}
-          title="Gỡ bỏ sản phẩm"
-          type="danger"
-          onConfirm={handleAction}
-          action="remove"
           product={product}
         />
       )}

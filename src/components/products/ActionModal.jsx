@@ -40,12 +40,23 @@ const ActionModal = ({ isOpen, onClose, title, type, onConfirm, action, product 
     if (!reason.trim()) return;
 
     const data = {};
-    if (action === 'reject') data.rejectionReason = reason;
-    if (action === 'request-edit') data.editNotes = reason;
-    if (action === 'warn-agency') data.warningMessage = reason;
-    if (action === 'remove') data.removeReason = reason;
+    // Sửa lại mapping cho đúng với ProductActions
+    switch(action) {
+      case 'reject':
+        data.rejectionReason = reason;
+        break;
+      case 'request-edit': // Đảm bảo action name khớp
+        data.editNotes = reason;
+        break;
+      case 'warn-agency':
+        data.warningMessage = reason;
+        break;
+      case 'remove':
+        data.removeReason = reason;
+        break;
+    }
 
-    onConfirm(action, data);
+    onConfirm(product.productId, action, data); // <-- Sửa ở đây
   };
 
   const getIcon = () => {

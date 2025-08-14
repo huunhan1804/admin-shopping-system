@@ -29,6 +29,8 @@ import InsuranceReview from "./pages/InsuranceReview";
 import ReportsPage from "./pages/ReportsPage";
 import ProductReviewPage from "./pages/ProductReviewPage";
 import SupportLibraryPage from "./pages/SupportLibraryPage";
+import "./styles/wellness-theme.css";
+
 
 const AppContent = () => {
   const { checkAuth } = useAuth();

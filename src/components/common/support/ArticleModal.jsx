@@ -45,31 +45,17 @@ const ArticleModal = ({
     }
   };
 
- const handleContentChange = (content) => {
-  setFormData(prev => ({
-    ...prev,
-    articleContent: content || ''  // chỉ nhận nội dung mới
-  }));
+  // ArticleModal.jsx
+const handleContentChange = React.useCallback((nextHtml) => {
+  setFormData(prev => {
+    if (prev.articleContent === nextHtml) return prev; // không đổi thì thôi
+    return { ...prev, articleContent: nextHtml || '' };
+  });
+
   if (errors.articleContent) {
     setErrors(prev => ({ ...prev, articleContent: '' }));
   }
-};
-  const extractImagesFromHtml = (html) => {
-  // tạo thẻ tạm để query
-  const wrapper = document.createElement("div");
-  wrapper.innerHTML = html || "";
-
-  // lấy tất cả ảnh trong editor (ưu tiên .image-list img, fallback toàn bộ img)
-  const imgs = wrapper.querySelectorAll(".image-list img, img");
-  const list = [];
-  imgs.forEach(img => {
-    const src = (img.getAttribute("src") || "").trim();
-    if (src) list.push(src);
-  });
-
-  return Array.from(new Set(list)); // unique
-};
-
+}, [errors.articleContent]);
 
 
   const validate = () => {
@@ -87,18 +73,13 @@ const ArticleModal = ({
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSubmit = (e) => {
-  e.preventDefault();
-  if (!validate()) return;
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  const articleImages = extractImagesFromHtml(formData.articleContent);
-
-  // gửi thêm field articleImages (array)
-  onSave({
-    ...formData,
-    articleImages
-  });
-};
+    if (validate()) {
+      onSave(formData);
+    }
+  };
 
   if (!isOpen) return null;
 

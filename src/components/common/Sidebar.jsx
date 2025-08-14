@@ -20,21 +20,25 @@ import {
   Grid,
   ChevronLeft,
   BookOpen,
+  Leaf,
+  Info,
 } from "lucide-react";
 import apiService from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
 
+/* ---------- Reusable Badge ---------- */
 const Badge = memo(({ count, variant = "yellow" }) => {
   if (!count || count === 0) return null;
   const variants = {
-    yellow: "bg-yellow-500 text-white",
-    red: "bg-red-500 text-white",
-    green: "bg-green-500 text-white",
-    blue: "bg-blue-500 text-white",
+    yellow: "bg-amber-500 text-white",
+    red: "bg-rose-500 text-white",
+    green: "bg-emerald-500 text-white",
+    blue: "bg-sky-500 text-white",
   };
   return (
     <span
-      className={`${variants[variant]} text-xs px-2 py-1 rounded-full ml-auto animate-pulse`}
+      className={`${variants[variant]} text-[10px] px-2 py-0.5 rounded-full ml-auto`}
+      aria-label={`badge: ${count}`}
     >
       {count > 99 ? "99+" : count}
     </span>
@@ -42,6 +46,7 @@ const Badge = memo(({ count, variant = "yellow" }) => {
 });
 Badge.displayName = "Badge";
 
+/* ---------- Shallow Equal helper ---------- */
 const shallowEqual = (a, b) => {
   if (a === b) return true;
   if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
@@ -70,18 +75,15 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // ---- Polling thông minh ----
+  /* ---------- Smart polling ---------- */
   const loadPendingCounts = useCallback(async (signal) => {
     try {
-      const response = await apiService.get("/admin/pending-counts", {
-        signal,
-      });
+      const response = await apiService.get("/admin/pending-counts", { signal });
       setPendingCounts((prev) =>
         shallowEqual(prev, response) ? prev : response
       );
     } catch (err) {
       if (err?.name === "AbortError") return;
-      // console.error(err);
     }
   }, []);
 
@@ -120,7 +122,7 @@ const Sidebar = () => {
     };
   }, [loadPendingCounts]);
 
-  // ---- Auto-expand theo route ----
+  /* ---------- Auto expand by route ---------- */
   useEffect(() => {
     const path = location.pathname;
     setExpandedMenus((prev) => ({
@@ -149,6 +151,7 @@ const Sidebar = () => {
     [location.pathname, location.search]
   );
 
+  /* ---------- Menu items ---------- */
   const menuItems = useMemo(
     () => [
       {
@@ -247,7 +250,7 @@ const Sidebar = () => {
       },
       {
         path: "/reports",
-        label: "Báo cáo và Phân tích",
+        label: "Báo cáo & Phân tích",
         icon: BarChart3,
         exact: true,
         description: "Thống kê và báo cáo",
@@ -257,11 +260,13 @@ const Sidebar = () => {
         path: "/support-library",
         icon: BookOpen,
         badge: null,
+        description: "Hướng dẫn & bài viết",
       },
     ],
     [pendingCounts]
   );
 
+  /* ---------- Render item ---------- */
   const renderMenuItem = useCallback(
     (item) => {
       if (item.expandable) {
@@ -274,31 +279,31 @@ const Sidebar = () => {
           <li key={item.key} className="mb-1">
             <button
               onClick={() => toggleMenu(item.key)}
-              className={`w-full flex items-center justify-between px-3 py-3 rounded-lg transition-all duration-200 group ${
-                hasActivePath
-                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-400 ring-opacity-50"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
-              }`}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group
+                ${
+                  hasActivePath
+                    ? "bg-emerald-600 text-white shadow-lg ring-1 ring-emerald-300"
+                    : "text-slate-200 hover:bg-slate-800/80 hover:text-white"
+                }`}
               title={isCollapsed ? item.label : ""}
+              aria-expanded={isExpanded}
             >
               <div className="flex items-center min-w-0">
                 <item.icon
                   className={`${
                     isCollapsed ? "w-6 h-6" : "w-5 h-5"
-                  } mr-3 flex-shrink-0 ${hasActivePath ? "text-blue-100" : ""}`}
+                  } mr-3 flex-shrink-0 ${
+                    hasActivePath ? "text-emerald-100" : "text-emerald-300/70"
+                  }`}
                 />
                 {!isCollapsed && (
                   <div className="min-w-0 flex-1">
-                    <span
-                      className={`text-sm font-medium block truncate ${
-                        hasActivePath ? "text-white" : ""
-                      }`}
-                    >
+                    <span className="text-sm font-semibold block truncate">
                       {item.label}
                     </span>
                     <span
-                      className={`text-xs block truncate ${
-                        hasActivePath ? "text-blue-100" : "text-gray-400"
+                      className={`text-[11px] block truncate ${
+                        hasActivePath ? "text-emerald-100" : "text-slate-400"
                       }`}
                     >
                       {item.description}
@@ -309,18 +314,18 @@ const Sidebar = () => {
               {!isCollapsed && (
                 <div className="flex items-center ml-2">
                   {item.children?.some((child) => child.badge) && (
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse" />
+                    <div className="w-1.5 h-1.5 bg-amber-400 rounded-full mr-2" />
                   )}
                   {isExpanded ? (
                     <ChevronDown
                       className={`w-4 h-4 transition-transform duration-200 ${
-                        hasActivePath ? "text-blue-100" : ""
+                        hasActivePath ? "text-emerald-100" : "text-slate-300"
                       }`}
                     />
                   ) : (
                     <ChevronRight
                       className={`w-4 h-4 transition-transform duration-200 ${
-                        hasActivePath ? "text-blue-100" : ""
+                        hasActivePath ? "text-emerald-100" : "text-slate-300"
                       }`}
                     />
                   )}
@@ -329,30 +334,30 @@ const Sidebar = () => {
             </button>
 
             {isExpanded && !isCollapsed && (
-              <ul className="mt-2 space-y-1 border-l-2 border-gray-600 pl-4">
+              <ul className="mt-2 space-y-1 border-l border-slate-700/60 pl-4">
                 {item.children.map((child) => (
                   <li key={child.path}>
                     <NavLink
                       to={child.path}
                       className={({ isActive }) =>
-                        `flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 group ${
+                        `flex items-center px-3 py-2 rounded-lg transition-all duration-200 group ${
                           isActive
-                            ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg ring-2 ring-blue-300 ring-opacity-30"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white hover:shadow-md"
+                            ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg ring-1 ring-emerald-300"
+                            : "text-slate-200 hover:bg-slate-800/70 hover:text-white"
                         }`
                       }
                       title={child.description}
                     >
-                      <child.icon className="w-4 h-4 mr-3 flex-shrink-0" />
+                      <child.icon className="w-4 h-4 mr-3 flex-shrink-0 text-emerald-300/80" />
                       <div className="flex-1 min-w-0">
-                        <span className="block truncate font-medium">
+                        <span className="block truncate text-sm font-medium">
                           {child.label}
                         </span>
                         <span
-                          className={`text-xs block truncate ${
+                          className={`text-[11px] block truncate ${
                             isActiveChild(child.path)
-                              ? "text-blue-100"
-                              : "text-gray-400"
+                              ? "text-emerald-100"
+                              : "text-slate-400"
                           }`}
                         >
                           {child.description}
@@ -374,10 +379,10 @@ const Sidebar = () => {
             to={item.path}
             end={item.exact}
             className={({ isActive }) =>
-              `flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
+              `flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group ${
                 isActive
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg ring-2 ring-blue-300 ring-opacity-30 transform scale-[1.02]"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white hover:shadow-md hover:transform hover:scale-[1.01]"
+                  ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg ring-1 ring-emerald-300 transform"
+                  : "text-slate-200 hover:bg-slate-800/70 hover:text-white"
               }`
             }
             title={isCollapsed ? item.label : item.description}
@@ -385,18 +390,18 @@ const Sidebar = () => {
             <item.icon
               className={`${
                 isCollapsed ? "w-6 h-6" : "w-5 h-5"
-              } mr-3 flex-shrink-0`}
+              } mr-3 flex-shrink-0 text-emerald-300/80`}
             />
             {!isCollapsed && (
               <div className="min-w-0 flex-1">
-                <span className="text-sm font-medium block truncate">
+                <span className="text-sm font-semibold block truncate">
                   {item.label}
                 </span>
                 <span
-                  className={`text-xs block truncate ${
+                  className={`text-[11px] block truncate ${
                     location.pathname === item.path
-                      ? "text-blue-100"
-                      : "text-gray-400"
+                      ? "text-emerald-100"
+                      : "text-slate-400"
                   }`}
                 >
                   {item.description}
@@ -415,33 +420,36 @@ const Sidebar = () => {
 
   return (
     <>
+      {/* Mobile Backdrop */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-[1px] z-40 lg:hidden"
           onClick={toggleMobile}
+          aria-hidden="true"
         />
       )}
 
+      {/* Mobile Toggle */}
       <button
         onClick={toggleMobile}
-        className="fixed top-4 left-4 z-50 lg:hidden bg-gray-800 text-white p-2 rounded-lg shadow-lg"
+        className="fixed top-4 left-4 z-50 lg:hidden bg-emerald-700 text-white p-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+        aria-label="Mở menu"
       >
-        {isMobileOpen ? (
-          <X className="w-5 h-5" />
-        ) : (
-          <Menu className="w-5 h-5" />
-        )}
+        {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
+      {/* Sidebar */}
       <aside
-        className={`${sidebarWidth} bg-gradient-to-b from-gray-800 via-gray-800 to-gray-900 text-white 
-        min-h-screen flex flex-col shadow-2xl border-r border-gray-700
+        className={`${sidebarWidth} bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white 
+        min-h-screen flex flex-col shadow-2xl border-r border-slate-800
         fixed lg:relative z-50 lg:z-auto
         transition-all duration-300 ease-in-out
         ${mobileClasses} lg:translate-x-0`}
+        aria-label="Sidebar điều hướng"
       >
+        {/* Header / Brand */}
         <div
-          className={`border-b border-gray-700 bg-gradient-to-r from-indigo-600 to-purple-600 ${
+          className={`border-b border-slate-800 bg-gradient-to-r from-emerald-700 to-emerald-600 ${
             isCollapsed ? "p-2" : "p-4"
           }`}
         >
@@ -449,48 +457,56 @@ const Sidebar = () => {
             <div className="flex justify-center">
               <button
                 onClick={toggleCollapse}
-                className="relative p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 group shadow-lg hover:shadow-xl hover:scale-105"
+                className="relative p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-white/40"
                 title="Mở rộng sidebar"
+                aria-label="Mở rộng sidebar"
               >
-                <ChevronRight className="w-5 h-5 text-white group-hover:text-indigo-100 transition-all duration-300 group-hover:translate-x-0.5" />
-                <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                <div className="absolute inset-0 rounded-xl ring-2 ring-white ring-opacity-0 group-hover:ring-opacity-30 transition-all duration-300"></div>
+                <ChevronRight className="w-5 h-5 text-white" />
               </button>
             </div>
           ) : (
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3 shadow-lg">
-                  <Store className="w-6 h-6 text-indigo-600" />
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mr-3 shadow-lg ring-1 ring-emerald-100">
+                  <Leaf className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">CTU Shop</h2>
-                  <p className="text-xs text-indigo-200">Admin Panel</p>
+                  <h2 className="text-lg font-bold text-white tracking-tight">
+                    CTU Shop
+                  </h2>
+                  <p className="text-[11px] text-emerald-100/90">
+                    Wellness Admin Panel
+                  </p>
                 </div>
               </div>
               <button
                 onClick={toggleCollapse}
-                className="hidden lg:block p-2 rounded-lg hover:bg-white/20 transition-all duration-300 group"
+                className="hidden lg:block p-2 rounded-lg hover:bg-white/15 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30"
                 title="Thu gọn sidebar"
+                aria-label="Thu gọn sidebar"
               >
-                <ChevronLeft className="w-4 h-4 text-white group-hover:text-indigo-100 transition-all duration-300 group-hover:-translate-x-0.5" />
+                <ChevronLeft className="w-4 h-4 text-white" />
               </button>
             </div>
           )}
         </div>
 
+        {/* Need Attention summary */}
         {!isCollapsed &&
           (pendingCounts.pendingProducts > 0 ||
             pendingCounts.pendingApplications > 0 ||
             pendingCounts.pendingClaims > 0) && (
-            <div className="p-4 border-b border-gray-700">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                Cần xử lý
-              </h3>
+            <div className="p-4 border-b border-slate-800/80 bg-emerald-950/20">
+              <div className="flex items-center gap-2 mb-2 text-emerald-200">
+                <Info className="w-4 h-4" />
+                <h3 className="text-xs font-semibold uppercase tracking-wider">
+                  Cần xử lý
+                </h3>
+              </div>
               <div className="space-y-2">
                 {pendingCounts.pendingProducts > 0 && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-300">Sản phẩm</span>
+                    <span className="text-slate-300">Sản phẩm</span>
                     <Badge
                       count={pendingCounts.pendingProducts}
                       variant="yellow"
@@ -499,7 +515,7 @@ const Sidebar = () => {
                 )}
                 {pendingCounts.pendingApplications > 0 && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-300">Đơn đăng ký</span>
+                    <span className="text-slate-300">Đơn đăng ký</span>
                     <Badge
                       count={pendingCounts.pendingApplications}
                       variant="blue"
@@ -508,7 +524,7 @@ const Sidebar = () => {
                 )}
                 {pendingCounts.pendingClaims > 0 && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-300">Bảo hiểm</span>
+                    <span className="text-slate-300">Bảo hiểm</span>
                     <Badge count={pendingCounts.pendingClaims} variant="red" />
                   </div>
                 )}
@@ -516,24 +532,37 @@ const Sidebar = () => {
             </div>
           )}
 
+        {/* Navigation */}
         <nav className="flex-1 p-4 overflow-y-auto custom-scrollbar">
           <ul className="space-y-1">{menuItems.map(renderMenuItem)}</ul>
         </nav>
 
-        <div className="p-4 border-t border-gray-700 bg-gray-750">
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-800 bg-slate-900/90">
           {!isCollapsed ? (
             <div className="space-y-3">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                title="Đăng xuất"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="text-sm font-medium">Đăng xuất</span>
+              </button>
               <div className="text-center">
-                <div className="text-xs text-gray-500">© 2025 CTU Shop</div>
-                <div className="text-xs text-gray-600">Version 1.0.0</div>
+                <div className="text-[11px] text-slate-500">
+                  © {new Date().getFullYear()} CTU Shop
+                </div>
+                <div className="text-[11px] text-slate-500">Version 1.0.0</div>
               </div>
             </div>
           ) : (
             <div className="space-y-2">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center p-2 text-red-400 hover:text-red-300 hover:bg-red-900 hover:bg-opacity-20 rounded-lg transition-all duration-200"
+                className="w-full flex items-center justify-center p-2 text-rose-300 hover:text-rose-200 hover:bg-rose-900/20 rounded-lg transition"
                 title="Đăng xuất"
+                aria-label="Đăng xuất"
               >
                 <LogOut className="w-5 h-5" />
               </button>
@@ -542,19 +571,20 @@ const Sidebar = () => {
         </div>
       </aside>
 
+      {/* Local CSS for scrollbar & tooltip on collapsed mode */}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
+          width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.1);
+          background: rgba(2, 6, 23, 0.2);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 2px;
+          background: rgba(255, 255, 255, 0.18);
+          border-radius: 999px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 0.28);
         }
       `}</style>
     </>

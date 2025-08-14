@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
-
+import ChatBox from './ChatBox';
 const Layout = ({ children }) => {
   return (
     <div className="flex h-screen bg-gray-100">
@@ -12,6 +12,7 @@ const Layout = ({ children }) => {
           {children}
         </main>
       </div>
+        <ChatBox />
     </div>
   );
 };

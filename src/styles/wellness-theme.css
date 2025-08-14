@@ -1,0 +1,197 @@
+/* ========== Wellness Theme (no HTML/JS changes) ========== */
+:root{
+  --brand-primary: #2E7D32;
+  --brand-primary-600:#1B5E20;
+  --brand-accent: #66BB6A;
+  --text-strong:#0F172A;
+  --text-muted:#64748B;
+  --bg-page:#F1F5F9;
+  --bg-card:#FFFFFF;
+  --border:#E2E8F0;
+  --radius-xl:16px;
+  --radius-lg:12px;
+  --shadow-1: 0 6px 18px rgba(16,24,40,0.06);
+  --shadow-2: 0 12px 30px rgba(16,24,40,0.08);
+  --focus: 0 0 0 3px rgba(102,187,106,0.3);
+}
+
+html, body{
+  background: var(--bg-page);
+  color: var(--text-strong);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Containers */
+.container, .page, .content-wrap{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Cards */
+.card, .panel, .box, .editor-wrapper, .image-strip{
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-1);
+}
+
+/* Headings */
+h1,h2,h3{
+  letter-spacing: -0.015em;
+}
+h1{
+  font-size: clamp(28px, 2.4vw, 36px);
+  font-weight: 700;
+}
+h2{
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 600;
+  color: var(--brand-primary);
+}
+.subtext, .muted, .help{
+  color: var(--text-muted);
+}
+
+/* Buttons (primary/ghost) */
+button, .btn{
+  border-radius: var(--radius-lg);
+  padding: 10px 16px;
+  font-weight: 600;
+  transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+  border:1px solid transparent;
+}
+.btn-primary, button.primary{
+  background: var(--brand-primary);
+  color:#fff;
+  box-shadow: 0 6px 16px rgba(46,125,50,.22);
+}
+.btn-primary:hover, button.primary:hover{
+  background: var(--brand-primary-600);
+  transform: translateY(-1px);
+}
+.btn-ghost, .btn-outline{
+  background: #fff;
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+.btn-ghost:hover, .btn-outline:hover{
+  background: rgba(102,187,106,.08);
+}
+
+/* Inputs / Select / Textarea */
+input[type="text"],input[type="search"],input[type="number"],
+textarea, select, .input, .select{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 12px;
+  outline: none;
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+input:focus, textarea:focus, select:focus, .input:focus{
+  border-color: var(--brand-accent);
+  box-shadow: var(--focus);
+}
+
+/* Toolbar (ví dụ: editor toolbar với Lucide icons) */
+.toolbar, .rte-toolbar, .editor-toolbar{
+  display:flex; gap:8px; align-items:center;
+  padding:10px;
+  border-bottom:1px solid var(--border);
+  background: linear-gradient(180deg,#FFFFFF, #FAFAFA);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+}
+.toolbar button, .rte-toolbar button{
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:12px;
+  padding:8px;
+}
+.toolbar button:hover{
+  background:#F8FAFC;
+  box-shadow: var(--shadow-1);
+}
+
+/* Editor body */
+.editor, .rte-editor, .prose{
+  padding:16px 18px 22px;
+  line-height:1.6;
+}
+
+/* Pills/Badges (dùng cho danh mục, tags, “100% natural”) */
+.badge, .pill{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px; font-weight:600; font-size:12px;
+  color: var(--brand-primary-600);
+  background: rgba(102,187,106,.12);
+  border:1px solid rgba(102,187,106,.3);
+  border-radius:999px;
+}
+
+/* Image gallery ngang (snap, đều nhau) */
+.image-strip{
+  padding: 12px;
+}
+.image-strip .images{
+  display:flex; gap:12px;
+  overflow:auto;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
+}
+.image-strip .images::-webkit-scrollbar{
+  height:8px;
+}
+.image-strip .images::-webkit-scrollbar-thumb{
+  background:#CBD5E1; border-radius:999px;
+}
+.image-strip .images img{
+  width:180px; height:180px; object-fit:cover;
+  border-radius:14px; border:1px solid var(--border);
+  box-shadow: var(--shadow-1);
+  scroll-snap-align:center;
+  transition: transform .2s ease, box-shadow .2s ease;
+  background:#fff;
+}
+.image-strip .images img:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+
+/* Thumbnail remove (nếu có icon “X” để xoá ảnh) */
+.thumb, .image-item{ position: relative; }
+.thumb .btn-remove, .image-item .btn-remove{
+  position:absolute; top:8px; right:8px;
+  width:30px; height:30px; display:grid; place-items:center;
+  border-radius:999px;
+  background: rgba(255,255,255,.92);
+  border:1px solid var(--border);
+  backdrop-filter: blur(4px);
+}
+.thumb .btn-remove:hover{ background:#fff; }
+
+/* Tables cho báo cáo */
+table{
+  width:100%; border-collapse:separate; border-spacing:0;
+  background:#fff; border:1px solid var(--border);
+  border-radius: var(--radius-xl); overflow:hidden;
+  box-shadow: var(--shadow-1);
+}
+th, td{ padding:12px 14px; border-bottom:1px solid var(--border); }
+th{ background:#F8FAF9; text-align:left; color:#0F172A; }
+tr:last-child td{ border-bottom:none; }
+
+/* Micro-interactions */
+*[data-hoverable], a, button{
+  transition: color .2s ease, background .2s ease, border-color .2s ease, transform .08s ease;
+}
+:focus-visible{ outline:none; box-shadow: var(--focus); }
+
+/* Empty states (dịu mắt, tích cực) */
+.empty{
+  text-align:center; padding:40px 16px; color:var(--text-muted);
+}
+.empty .emoji{ font-size:40px; display:block; margin-bottom:8px; }

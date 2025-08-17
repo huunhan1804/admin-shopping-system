@@ -24,14 +24,14 @@ const SearchBar = ({ value, onChange, onSearch, placeholder }) => {
   return (
     <form onSubmit={handleSubmit} className="mb-6">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <input
           type="text"
           value={localValue}
           onChange={handleChange}
           placeholder={placeholder || "Tìm kiếm..."}
-          className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full pl-4 pr-20 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
+        <Search className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         {localValue && (
           <button
             type="button"

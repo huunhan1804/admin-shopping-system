@@ -11,15 +11,17 @@ const SearchInput = ({
   size = "md", // sm, md, lg
 }) => {
   const sizeClasses = {
-    sm: "pl-9 pr-8 py-2 text-sm",
-    md: "pl-11 pr-10 py-3 text-base",
-    lg: "pl-12 pr-11 py-4 text-lg",
+    // Đổi padding: pl (left) thành pr (right) và ngược lại
+    sm: "pr-9 pl-8 py-2 text-sm",  // Đổi từ "pl-9 pr-8" thành "pr-9 pl-8"
+    md: "pr-11 pl-10 py-3 text-base", // Đổi từ "pl-11 pr-10" thành "pr-11 pl-10"
+    lg: "pr-12 pl-11 py-4 text-lg",   // Đổi từ "pl-12 pr-11" thành "pr-12 pl-11"
   };
 
   const iconSizeClasses = {
-    sm: { search: "left-3 h-4 w-4", clear: "right-2 h-4 w-4" },
-    md: { search: "left-4 h-5 w-5", clear: "right-3 h-5 w-5" },
-    lg: { search: "left-4 h-6 w-6", clear: "right-3 h-6 w-6" },
+    // Đổi vị trí icon: left thành right, right thành left
+    sm: { search: "right-3 h-4 w-4", clear: "left-2 h-4 w-4" }, // Đổi left-3 thành right-3, right-2 thành left-2
+    md: { search: "right-4 h-5 w-5", clear: "left-3 h-5 w-5" }, // Đổi left-4 thành right-4, right-3 thành left-3
+    lg: { search: "right-4 h-6 w-6", clear: "left-3 h-6 w-6" }, // Đổi left-4 thành right-4, right-3 thành left-3
   };
 
   const handleClear = () => {

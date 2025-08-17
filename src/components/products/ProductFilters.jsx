@@ -131,17 +131,18 @@ const ProductFilters = ({ filters, filterOptions, onFilterChange }) => {
             Tìm kiếm sản phẩm
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              value={filters.keyword}
-              onChange={(e) => handleInputChange("keyword", e.target.value)}
-              placeholder="Nhập tên sản phẩm, mô tả..."
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            />
-          </div>
+  <input
+    type="text"
+    value={filters.keyword}
+    onChange={(e) => handleInputChange("keyword", e.target.value)}
+    placeholder="Nhập tên sản phẩm, mô tả..."
+    className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+  />
+  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+    <Search className="h-5 w-5 text-gray-400" />
+  </div>
+</div>
+
         </div>
 
         {/* Filter Grid */}

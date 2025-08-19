@@ -148,23 +148,19 @@ const RichTextEditor = ({ value, onChange, placeholder, error }) => {
       </div>
 
 
-      {/* Editor */}
-    <div
+{/* Editor */}
+<div
   ref={editorRef}
   contentEditable
+  dir="ltr"  // ép luôn chiều nhập
   className="min-h-[300px] p-4 focus:outline-none"
+  style={{ direction: 'ltr', textAlign: 'left', unicodeBidi: 'isolate' }} // thêm style chống ngược
   placeholder={placeholder}
-  onInput={(e) => {
-    const newContent = e.currentTarget.innerHTML;
-    onChange(newContent); // luôn truyền nội dung mới
-  }}
+  onInput={handleInput}  // dùng hàm đã có để giữ LTR & emitChange
   onPaste={handlePaste}
-  suppressContentEditableWarning={true} // tránh warning
->
-  {value && !editorRef.current?.innerHTML && (
-    <div dangerouslySetInnerHTML={{ __html: value }} />
-  )}
-</div>
+  suppressContentEditableWarning={true}
+/>
+
 
       {/* Link Dialog */}
       {showLinkDialog && (

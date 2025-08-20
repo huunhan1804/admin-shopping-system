@@ -47,11 +47,11 @@ const Header = () => {
 
             {/* User dropdown */}
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+              <div className="absolute right-0 mt-2 w-65 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
                 <div className="py-1">
                   <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
                     <p className="font-medium">{user?.username || 'Admin'}</p>
-                    <p className="text-gray-500">admin@ctushop.com</p>
+                    <p className="text-gray-500">{user?.username}@ctushop.com</p>
                   </div>                  
                   <button
                     onClick={handleLogout}

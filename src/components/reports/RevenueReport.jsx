@@ -148,6 +148,15 @@ const RevenueReport = ({ data }) => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Hoa hồng
                 </th>
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Doanh thu đăng ký
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Chi phí vận hành
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Lợi nhuận thuần
+                </th> */}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -162,7 +171,7 @@ const RevenueReport = ({ data }) => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {new Intl.NumberFormat('vi-VN').format(item.agencyCommissionRevenue)} VNĐ
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {new Intl.NumberFormat('vi-VN').format(item.subscriptionRevenue)} VNĐ
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
@@ -170,7 +179,7 @@ const RevenueReport = ({ data }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
                     {new Intl.NumberFormat('vi-VN').format(item.netProfit)} VNĐ
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

@@ -72,7 +72,7 @@ const LoginForm = () => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="rounded-md -space-y-px">
               {/* Username */}
-              <div className="relative">
+              <div className="relative" border border-gray-300 rounded-t-xl> 
                 <label htmlFor="loginId" className="sr-only">
                   Username
                 </label>
@@ -94,7 +94,7 @@ const LoginForm = () => {
               </div>
 
               {/* Password */}
-              <div className="relative">
+              <div className="relative" border border-gray-300 rounded-b-xl border-t-0 >
                 <label htmlFor="password" className="sr-only">
                   Password
                 </label>
@@ -115,7 +115,7 @@ const LoginForm = () => {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 rounded-r-xl border"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
